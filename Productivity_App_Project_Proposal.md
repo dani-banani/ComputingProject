@@ -31,12 +31,12 @@
 ## Problems the core features solve:
 
 - Disorganization
-- Being Overwhelmed
-- Inefficient workflow
+  - Being Overwhelmed
+  - Inefficient workflow
 - Procrastination
 - Bad time management
-- Poor Planning
-- Last minute rushing on tasks
+  - Poor Planning
+  - Last minute rushing on tasks
 - Lack of motivation
 
 ---
