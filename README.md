@@ -1,3 +1,4 @@
 # Computing Project
-A repo for our time management app
-
+This branch is for images or art for the application.
+Ui elements
+# Mostly under /images
