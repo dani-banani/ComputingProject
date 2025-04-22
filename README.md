@@ -1,3 +1,3 @@
-# computing_project
+# Computing Project
+A repo for our time management app
 
-A new Flutter project.
