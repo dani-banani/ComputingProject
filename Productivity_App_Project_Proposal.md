@@ -66,25 +66,17 @@
 - Tracking time spent on tasks to display at the end of task or whilst working on the task
 - Set goal in the beginning of month
 - End of that month, app send user analytical report of their progress towards their goal
+- Focus Mode:
+-- A button besides planned tasks. Users are allowed to press it when they want to start working on a task, doing so prevents access to other applications within the phone
+- Customizations in app?
 
----
 
-## Focus Mode:
+- AI Features:
 
-A button besides planned tasks. Users are allowed to press it when they want to start working on a task, doing so prevents access to other applications within the phone
-
----
-
-## Customizations in app?
-
----
-
-## AI Features:
-
-- Mood tracker- AI suggests what study method to use based on mood/ what you're feeling
-- Reality Mode: encourages users to add how long they think a task will take, then tells you if your schedule is realistic. Analyse the task and see if the estimated time and duration is realistic
-- Productivity Tips
-- Mood tracker (integrates into ai powered productivity tips to motivate and provides suggestions on method of study based on their mood)
+-- Mood tracker- AI suggests what study method to use based on mood/ what you're feeling
+-- Reality Mode: encourages users to add how long they think a task will take, then tells you if your schedule is realistic. Analyse the task and see if the estimated time and duration is realistic
+-- Productivity Tips
+-- Mood tracker (integrates into ai powered productivity tips to motivate and provides suggestions on method of study based on their mood)
 
 ---
 
@@ -94,4 +86,3 @@ A button besides planned tasks. Users are allowed to press it when they want to 
 - Reflect on performance daily
 - Log user’s mood
 - Track personal insights (by typing or recording (voice))
-"""
