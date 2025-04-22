@@ -80,11 +80,11 @@
 
 ## Ideas:
 
-- Journal
 - Reflect on performance daily
 - Log user’s mood
 - Track personal insights (by typing or recording (voice))
-- Journal prompt user with questions like 
+- Journal
+  - Journal prompt user with questions like 
     -What went well? 
     -What could’ve gone better? 
     -How are you feeling right now? (user can respond with emoji instead of word) 
