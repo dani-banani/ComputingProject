@@ -1,3 +1,5 @@
+  - Project Intro Slides: https://www.canva.com/design/DAGlNN_cNAo/XCMP9H2Xeq71vzyg9o_XSg/edit
+
 # Project Tasks
 
 1. Problem Identification: Identify a real-world problem that has a tangible impact on individuals, businesses, or society. The problem should be specific, relevant, and solvable within the scope of this project.
