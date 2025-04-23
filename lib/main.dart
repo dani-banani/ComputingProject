@@ -1,4 +1,8 @@
   import 'package:flutter/material.dart';
+  import 'package:get/get.dart';
+
+  import 'navigation/app_routes.dart';
+  import 'widgets/footer_navbar_widget.dart';
 
 void main() {
   runApp(const MainApp());
@@ -9,12 +13,10 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
-        ),
-      ),
+    return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
+      initialRoute: AppRoutes.home,
+      getPages: AppRoutes.pages,
     );
   }
 }
