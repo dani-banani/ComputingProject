@@ -1,7 +1,10 @@
 import 'package:get/get.dart';
+
 import '../pages/home_page.dart';
 import '../pages/random_page.dart';
 import '../pages/settings_page.dart';
+
+
 class AppRoutes {
   static List<GetPage> pages = [
     GetPage(

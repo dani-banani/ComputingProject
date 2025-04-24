@@ -16,14 +16,22 @@ class _FooterNavbarWidgetState extends State<FooterNavbarWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      color: Colors.transparent,
       height: 100,
+      padding: EdgeInsets.symmetric(horizontal: 10),
       child: LayoutBuilder(builder: (context, constraints) {
         return Stack(
           alignment: Alignment.bottomCenter,
           children: [
             Container(
-              height: constraints.maxHeight * 0.7,
-              color: baseColor,
+              decoration: BoxDecoration(
+                color: baseColor,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+              ),
+              height: constraints.maxHeight * 0.7,  
               padding: EdgeInsets.symmetric(horizontal: 20),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

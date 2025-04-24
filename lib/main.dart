@@ -17,6 +17,24 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: AppRoutes.home,
       getPages: AppRoutes.pages,
+      navigatorKey: Get.key,
+      builder: (context, child) {
+        return Scaffold(
+          body: Stack(
+            children: [
+              child ?? const SizedBox.shrink(),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  FooterNavbarWidget(),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+
+      
     );
   }
 }
