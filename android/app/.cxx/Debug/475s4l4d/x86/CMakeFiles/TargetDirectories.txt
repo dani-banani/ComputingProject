@@ -1,0 +1,2 @@
+C:/Users/danie/.ssh/ComputingProject/android/app/.cxx/Debug/475s4l4d/x86/CMakeFiles/edit_cache.dir
+C:/Users/danie/.ssh/ComputingProject/android/app/.cxx/Debug/475s4l4d/x86/CMakeFiles/rebuild_cache.dir

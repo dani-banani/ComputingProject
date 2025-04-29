@@ -4,10 +4,16 @@
   import 'navigation/app_routes.dart';
   import 'widgets/footer_navbar_widget.dart';
 
-void main() {
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+Future<void> main() async {
+  await Supabase.initialize(
+    url: 'https://sfdvrbbsjbmbkjbnmbes.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNmZHZyYmJzamJtYmtqYm5tYmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU4OTM2NzEsImV4cCI6MjA2MTQ2OTY3MX0.KGD6Dt2kWrtwTvjhgY65rcRMYuG7GrCEWeq0z1iZvNs',
+  );
   runApp(const MainApp());
 }
-
+final supabase = Supabase.instance.client;
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
 
