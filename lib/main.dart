@@ -1,21 +1,24 @@
-  import 'package:flutter/material.dart';
-  import 'package:get/get.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-  import 'navigation/app_routes.dart';
-  import 'widgets/footer_navbar_widget.dart';
+import 'navigation/app_routes.dart';
+import 'widgets/footer_navbar_widget.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
   await Supabase.initialize(
     url: 'https://sfdvrbbsjbmbkjbnmbes.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNmZHZyYmJzamJtYmtqYm5tYmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU4OTM2NzEsImV4cCI6MjA2MTQ2OTY3MX0.KGD6Dt2kWrtwTvjhgY65rcRMYuG7GrCEWeq0z1iZvNs',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNmZHZyYmJzamJtYmtqYm5tYmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU4OTM2NzEsImV4cCI6MjA2MTQ2OTY3MX0.KGD6Dt2kWrtwTvjhgY65rcRMYuG7GrCEWeq0z1iZvNs',
   );
-  runApp(const MainApp());
+
+  runApp(MainApp());
 }
-final supabase = Supabase.instance.client;
+
 class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+  final supabase = Supabase.instance.client;
+  MainApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -29,18 +32,11 @@ class MainApp extends StatelessWidget {
           body: Stack(
             children: [
               child ?? const SizedBox.shrink(),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  FooterNavbarWidget(),
-                ],
-              ),
+              Positioned(bottom: 0, left: 0, right: 0,child: FooterNavbarWidget())
             ],
           ),
         );
       },
-
-      
     );
   }
 }

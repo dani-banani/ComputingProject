@@ -1,3 +1,5 @@
+import 'dart:isolate';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -11,108 +13,92 @@ class FooterNavbarWidget extends StatefulWidget {
 }
 
 class _FooterNavbarWidgetState extends State<FooterNavbarWidget> {
-  Color baseColor = const Color.fromARGB(255, 0, 98, 33);
+  Color baseColor = Colors.greenAccent;
+  int activeIndex = 0;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.transparent,
-      height: 100,
-      padding: EdgeInsets.symmetric(horizontal: 10),
-      child: LayoutBuilder(builder: (context, constraints) {
-        return Stack(
-          alignment: Alignment.bottomCenter,
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                color: baseColor,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
-                ),
-              ),
-              height: constraints.maxHeight * 0.7,  
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  buildNavbarItem(
-                    label: "Home",
-                    icon: Icons.home,
-                  ),
-                  buildNavbarItem(label: "Smile", icon: Icons.face,),
-                  buildNavbarItem(),
-                  buildNavbarItem(label: "Profile", icon: Icons.person),
-                  buildNavbarItem(label: "Settings", icon: Icons.settings, targetPage: AppRoutes.settings)
-                ],
-              ),
-            ),
-            buildCenterButton(constraints),
-          ],
-        );
-      }),
-    );
-  }
+    List<NavbarItem> navbarItems = [
+      new NavbarItem("Home", Icons.home, AppRoutes.home),
+      new NavbarItem("Smile", Icons.face, AppRoutes.random),
+      new NavbarItem("Add Task", Icons.add, AppRoutes.random),
+      new NavbarItem("Task List", Icons.done_all_rounded, AppRoutes.random),
+      new NavbarItem("Settings", Icons.settings, AppRoutes.settings),
+    ];
+    activeIndex = 0;
+    navbarItems.elementAt(activeIndex).isActive = true;
 
-  Widget buildCenterButton(BoxConstraints constraints) {
-    return Positioned(
-      bottom: constraints.maxHeight * 0.2,
-      child: ClipOval(
-        child: Container(
-          width: constraints.maxHeight * 0.7,
-          height: constraints.maxHeight * 0.7,
-          padding: EdgeInsets.all(1),
-          color: Colors.white,
-          child: IconButton(
-            color: baseColor,
-            style: ButtonStyle(
-              iconColor: WidgetStateProperty.all(Colors.white),
-              backgroundColor: WidgetStateProperty.all(baseColor),
+
+
+    return Container(
+      height: 200,
+      color: Colors.transparent,
+      padding: EdgeInsets.symmetric(horizontal: 10),
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: baseColor,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
             ),
-            onPressed: () {
-              Get.toNamed(AppRoutes.random);
-            },
-            icon: Icon(
-              Icons.add,
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: navbarItems
+                  .map((
+                    item,
+                  ) =>
+                      buildNavbarItem(navbarItem: item))
+                  .toList(),
             ),
           ),
-        ),
+          // buildCenterButton(constraints),
+        ],
       ),
     );
   }
 
-  Widget buildNavbarItem(
-      {String? label,
-      IconData? icon,
-      double height = 60,
-      double width = 60,
-      String targetPage = AppRoutes.home}) {
+  Widget buildNavbarItem({
+    required NavbarItem navbarItem,
+    double height = 60,
+    double width = 60,
+  }) {
     return InkWell(
       borderRadius: BorderRadius.circular(30),
       splashColor: Colors.white,
       highlightColor: Colors.white,
       onTap: () {
-        Get.toNamed(targetPage);
+        Get.toNamed(navbarItem.targetPage);
       },
       child: SizedBox(
-        height: height,
-        width: width,
-        child: (label != null && icon != null)
-            ? Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    icon,
-                    color: Colors.black,
-                  ),
-                  Text(
-                    label,
-                    style: TextStyle(color: Colors.black),
-                  ),
-                ],
-              )
-            : Container(),
-      ),
+          height: height,
+          width: width,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                navbarItem.icon,
+                color: (navbarItem.isActive) ? Colors.white : Colors.black,
+              ),
+              Text(
+                navbarItem.label,
+                style: TextStyle(color: (navbarItem.isActive) ? Colors.white : Colors.black),
+              ),
+            ],
+          )),
     );
   }
+}
+
+class NavbarItem {
+  String label;
+  IconData icon;
+  String targetPage;
+  bool isActive;
+
+  NavbarItem(this.label, this.icon, this.targetPage, {this.isActive = false});
 }
