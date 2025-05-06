@@ -89,4 +89,5 @@
   - Journal prompt user with questions like 
   -What went well? 
   -What could’ve gone better? 
-  -How are you feeling right now? (user can respond with emoji instead of word) 
+  -How are you feeling right now? (user can respond with emoji instead of word)
+- Shop for customization?
