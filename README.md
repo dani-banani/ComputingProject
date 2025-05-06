@@ -57,7 +57,6 @@
 - Prioritize tasks and set reminders
 - Reminders to do the task instead of only when its due
 - Study method based on mood (non-ai)
-- Goal and habit tracking
 
 ---
 
