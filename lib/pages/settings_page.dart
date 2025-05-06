@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../widgets/footer_navbar_widget.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});

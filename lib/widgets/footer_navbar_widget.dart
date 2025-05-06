@@ -1,34 +1,34 @@
-import 'dart:isolate';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../navigation/app_routes.dart';
 
 class FooterNavbarWidget extends StatefulWidget {
-  const FooterNavbarWidget({super.key});
+  final String currentPage;
+
+  FooterNavbarWidget({super.key, required this.currentPage});
 
   @override
   State<FooterNavbarWidget> createState() => _FooterNavbarWidgetState();
 }
 
 class _FooterNavbarWidgetState extends State<FooterNavbarWidget> {
-  Color baseColor = Colors.greenAccent;
-  int activeIndex = 0;
+  Color baseColor = const Color.fromARGB(255, 0, 126, 32);
+  List<NavbarItem> navbarItems = [
+    NavbarItem("Home", Icons.home, AppRoutes.home),
+    NavbarItem("Smile", Icons.face, AppRoutes.smile),
+    NavbarItem("Add Task", Icons.add, AppRoutes.addTask),
+    NavbarItem("Task List", Icons.done_all_rounded, AppRoutes.taskList),
+    NavbarItem("Settings", Icons.settings, AppRoutes.settings),
+  ];
 
   @override
   Widget build(BuildContext context) {
-    List<NavbarItem> navbarItems = [
-      new NavbarItem("Home", Icons.home, AppRoutes.home),
-      new NavbarItem("Smile", Icons.face, AppRoutes.random),
-      new NavbarItem("Add Task", Icons.add, AppRoutes.random),
-      new NavbarItem("Task List", Icons.done_all_rounded, AppRoutes.random),
-      new NavbarItem("Settings", Icons.settings, AppRoutes.settings),
-    ];
-    activeIndex = 0;
-    navbarItems.elementAt(activeIndex).isActive = true;
-
-
+    navbarItems.forEach((item) => item.isActive = false);
+    NavbarItem activeItem = navbarItems.firstWhere(
+        (item) => item.targetPage == widget.currentPage,
+        orElse: () => navbarItems[0]);
+    activeItem.isActive = true;
 
     return Container(
       height: 200,
@@ -40,12 +40,13 @@ class _FooterNavbarWidgetState extends State<FooterNavbarWidget> {
           Container(
             decoration: BoxDecoration(
               color: baseColor,
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(20),
                 topRight: Radius.circular(20),
               ),
             ),
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+            padding:
+                const EdgeInsets.only(left: 20, right: 20, bottom: 10, top: 5),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: navbarItems
@@ -67,12 +68,13 @@ class _FooterNavbarWidgetState extends State<FooterNavbarWidget> {
     double height = 60,
     double width = 60,
   }) {
+    Color itemColor = (navbarItem.isActive) ? Colors.white : Colors.black;
+
     return InkWell(
-      borderRadius: BorderRadius.circular(30),
-      splashColor: Colors.white,
-      highlightColor: Colors.white,
       onTap: () {
-        Get.toNamed(navbarItem.targetPage);
+        Get.toNamed(
+          navbarItem.targetPage,
+        );
       },
       child: SizedBox(
           height: height,
@@ -82,11 +84,11 @@ class _FooterNavbarWidgetState extends State<FooterNavbarWidget> {
             children: [
               Icon(
                 navbarItem.icon,
-                color: (navbarItem.isActive) ? Colors.white : Colors.black,
+                color: itemColor,
               ),
               Text(
                 navbarItem.label,
-                style: TextStyle(color: (navbarItem.isActive) ? Colors.white : Colors.black),
+                style: TextStyle(color: itemColor),
               ),
             ],
           )),
@@ -100,5 +102,7 @@ class NavbarItem {
   String targetPage;
   bool isActive;
 
-  NavbarItem(this.label, this.icon, this.targetPage, {this.isActive = false});
+
+  NavbarItem(this.label, this.icon, this.targetPage,
+      {this.isActive = false});
 }

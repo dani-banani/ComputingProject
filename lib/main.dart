@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 
 import 'navigation/app_routes.dart';
@@ -16,23 +17,46 @@ Future<void> main() async {
   runApp(MainApp());
 }
 
-class MainApp extends StatelessWidget {
-  final supabase = Supabase.instance.client;
+class MainApp extends StatefulWidget {
   MainApp({super.key});
 
   @override
+  State<MainApp> createState() => _MainAppState();
+}
+
+class _MainAppState extends State<MainApp> {
+  final supabase = Supabase.instance.client;
+
+  final List<String> noFooterRoutes = [AppRoutes.registration];
+
+  @override
   Widget build(BuildContext context) {
+    String currentRoute = Get.currentRoute;
+
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: AppRoutes.home,
+      initialRoute: AppRoutes.registration,
       getPages: AppRoutes.pages,
       navigatorKey: Get.key,
+      navigatorObservers: [
+        GetObserver((routing) => {
+          SchedulerBinding.instance.addPostFrameCallback((_){
+              setState(() {
+                currentRoute = Get.currentRoute;
+              });
+            })
+  })
+      ],
       builder: (context, child) {
         return Scaffold(
           body: Stack(
             children: [
               child ?? const SizedBox.shrink(),
-              Positioned(bottom: 0, left: 0, right: 0,child: FooterNavbarWidget())
+              (noFooterRoutes.contains(currentRoute))
+                  ? const SizedBox.shrink()
+                  :
+                   Positioned(
+                      bottom: 0, left: 0, right: 0, child: FooterNavbarWidget(currentPage: currentRoute,))
             ],
           ),
         );
