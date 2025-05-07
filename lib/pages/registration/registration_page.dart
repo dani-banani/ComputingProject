@@ -2,16 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../navigation/app_routes.dart';
+import './registration_page_controller.dart';
 
-class RegistrationPage extends StatefulWidget {
-  const RegistrationPage({super.key});
+class RegistrationPage extends GetView<RegistrationPageController> {
+  const RegistrationPage({Key? key}) : super(key: key);
 
-  @override
-  State<RegistrationPage> createState() => _RegistrationPageState();
-}
-
-class _RegistrationPageState extends State<RegistrationPage> {
-  @override
   Widget build(BuildContext context) {
     return Container(
       child: SingleChildScrollView(
@@ -19,11 +14,15 @@ class _RegistrationPageState extends State<RegistrationPage> {
             .applyTo(BouncingScrollPhysics()),
         child: Column(
           children: [
-            const Text("Login", style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),),
+            const Text(
+              "Login",
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            ),
             TextField(),
             TextField(),
-            ElevatedButton(onPressed: () => {Get.toNamed(AppRoutes.home)}, child: Text("Go to home page"))
-           
+            ElevatedButton(
+                onPressed: controller.loginUser,
+                child: Text("Go to home page"))
           ],
         ),
       ),

@@ -6,7 +6,13 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(child: Text("Settings Page")),
+      body: Center(child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text("Settings Page"),
+          Expanded(child: Container(color: Colors.indigo))
+        ],
+      )),
     );
   }
 }
