@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 
 import '../../navigation/app_routes.dart';
-import '../../api/registration_api.dart';
+import '../../api/authentication_api.dart';
 
 //This page is like the state manager for the registration page, and this is where I will call the APi class functions. So basicaclly each page will be placed in a folder like this, one page, one controller.
 
