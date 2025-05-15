@@ -1,70 +1,120 @@
-import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'response_api.dart';
 
-//Different classes can be created for different APIs, no specific use, just for organization purposes. Maybe an authenticaiton API can be created then before all functions that requrire auth call that function
 class RegistrationApi {
   final supabase = Supabase.instance.client;
 
-  //Each API function starts with static, when I acess from front end is just ClassName.functionName
+  // Signup
   static Future<String> signUpUser({
     required String email,
     required String password,
   }) async {
-    String response = '{';
     try {
       final signUpResponse = await Supabase.instance.client.auth.signUp(
         email: email,
         password: password,
       );
       if (signUpResponse.user != null) {
-        response += '"status": "success"';
+        return ResponseApi.dataSessionResponseHandler(
+          ["User registered successfully"],
+          true,
+          signUpResponse.user!.toJson(),
+          signUpResponse.session?.toJson() ?? {},
+        );
       } else {
-        response += '"status": "error", "message": "Unknown error occurred"';
+        return ResponseApi.dataSessionResponseHandler(
+          ["User registration failed"],
+          false,
+          {},
+          {},
+        );
       }
     } on AuthException catch (e) {
-      response += '"status": "error", "message": "${e.message}"';
+      return ResponseApi.dataSessionResponseHandler(
+        ["Sign up failed: ${e.message}"],
+        false,
+        {},
+        {},
+      );
     } catch (e) {
-      response += '"status": "error", "message": "Unexpected error: $e"';
+      return ResponseApi.dataSessionResponseHandler(
+        ["Unexpected error: $e"],
+        false,
+        {},
+        {},
+      );
     }
-    response += '}';
-    return response;
   }
+  
+  // Sign in 
   static Future<String> signInUser({
     required String email,
     required String password,
   }) async {
-    String response = '{';
     try {
-      final signInResponse = await Supabase.instance.client.auth.signInWithPassword(
-        email: email,
-        password: password,
-      );
+      final signInResponse = await Supabase.instance.client.auth
+          .signInWithPassword(email: email, password: password);
       if (signInResponse.user != null) {
-        response += '"status": "success"';
+        return ResponseApi.dataSessionResponseHandler(
+          ["User logged in successfully"],
+          true,
+          signInResponse.user!.toJson(),
+          signInResponse.session?.toJson() ?? {},
+        );
       } else {
-        response += '"status": "error", "message": "Unknown error occurred"';
+        return ResponseApi.dataSessionResponseHandler(
+          ["User login failed"],
+          false,
+          {},
+          {},
+        );
       }
     } on AuthException catch (e) {
-      response += '"status": "error", "message": "${e.message}"';
+      return ResponseApi.dataSessionResponseHandler(
+        ["Sign in failed: ${e.message}"],
+        false,
+        {},
+        {},
+      );
     } catch (e) {
-      response += '"status": "error", "message": "Unexpected error: $e"';
+      return ResponseApi.dataSessionResponseHandler(
+        ["Unexpected error: $e"],
+        false,
+        {},
+        {},
+      );
     }
-    response += '}';
-    return response;
   }
-  static Future<String> authenticateUser() async {
-    String response = '{';
+  
+  // Authenticate 
+  static Future<bool> authenticateUser() async {
+    return Supabase.instance.client.auth.currentSession != null;
+  }
+  
+  // Sign out 
+  static Future<String> signOutUser() async {
     try {
-      final session = Supabase.instance.client.auth.currentSession;
-      if (session != null) {
-        response += '"status": "success"';
-      } else {
-        response += '"status": "error", "message": "User not authenticated"';
-      }
+      await Supabase.instance.client.auth.signOut();
+      return ResponseApi.dataSessionResponseHandler(
+        ["User signed out successfully"],
+        true,
+        {},
+        {},
+      );
+    } on AuthException catch (e) {
+      return ResponseApi.dataSessionResponseHandler(
+        ["Sign out failed: ${e.message}"],
+        false,
+        {},
+        {},
+      );
     } catch (e) {
-      response += '"status": "error", "message": "Unexpected error: $e"';
+      return ResponseApi.dataSessionResponseHandler(
+        ["Unexpected error: $e"],
+        false,
+        {},
+        {},
+      );
     }
-    response += '}';
-    return response;
   }
 }
