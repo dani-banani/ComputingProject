@@ -3,12 +3,12 @@ import 'dart:convert';
 class ResponseApi {
   static String dataSessionResponseHandler(
     List<String> message,
-    bool success,
-    Map<String, dynamic> data,
-    Map<String, dynamic> session
-  ) {
+    bool success, [
+    Map<String, dynamic> data = const {},
+    Map<String, dynamic> session = const {},
+  ]) {
     return jsonEncode({
-      "status": success ? "success" : "error",
+      "status": success,
       "message": message,
       "data": data,
       "session": session,

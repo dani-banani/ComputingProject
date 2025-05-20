@@ -45,7 +45,52 @@ class RegistrationApi {
       );
     }
   }
-  
+  // Update User Details
+static Future<String> updateUserProfile({
+  required String username,
+  required String gender,
+  required DateTime birthdate,
+}) async {
+  try {
+    final user = Supabase.instance.client.auth.currentUser;
+
+    if (user == null) {
+      return ResponseApi.dataSessionResponseHandler(
+        ["User not authenticated"],
+        false,
+      );
+    }
+
+    final response = await Supabase.instance.client
+        .from('cw_user_profile')
+        .update({
+          'username': username,
+          'gender': gender,
+          'birthdate': birthdate.toIso8601String(),
+        })
+        .eq('uid', user.id)
+        .select();
+
+    if (response.isEmpty) {
+      return ResponseApi.dataSessionResponseHandler(
+        ["No profile was updated UID may not exists)"],
+        false,
+      );
+    }
+
+    return ResponseApi.dataSessionResponseHandler(
+      ["User profile updated successfully"],
+      true,
+      {"uid": user.id, "username": username, "gender": gender, "birthdate": birthdate.toIso8601String()},
+    );
+  } catch (e) {
+    return ResponseApi.dataSessionResponseHandler(
+      ["Unexpected error: $e"],
+      false,
+    );
+  }
+}
+
   // Sign in 
   static Future<String> signInUser({
     required String email,
@@ -64,24 +109,18 @@ class RegistrationApi {
       } else {
         return ResponseApi.dataSessionResponseHandler(
           ["User login failed"],
-          false,
-          {},
-          {},
+          false
         );
       }
     } on AuthException catch (e) {
       return ResponseApi.dataSessionResponseHandler(
         ["Sign in failed: ${e.message}"],
-        false,
-        {},
-        {},
+        false
       );
     } catch (e) {
       return ResponseApi.dataSessionResponseHandler(
         ["Unexpected error: $e"],
-        false,
-        {},
-        {},
+        false
       );
     }
   }
@@ -97,23 +136,17 @@ class RegistrationApi {
       await Supabase.instance.client.auth.signOut();
       return ResponseApi.dataSessionResponseHandler(
         ["User signed out successfully"],
-        true,
-        {},
-        {},
+        true
       );
     } on AuthException catch (e) {
       return ResponseApi.dataSessionResponseHandler(
         ["Sign out failed: ${e.message}"],
-        false,
-        {},
-        {},
+        false
       );
     } catch (e) {
       return ResponseApi.dataSessionResponseHandler(
         ["Unexpected error: $e"],
-        false,
-        {},
-        {},
+        false
       );
     }
   }
