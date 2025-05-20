@@ -64,11 +64,11 @@ static Future<String> updateUserProfile({
     final response = await Supabase.instance.client
         .from('cw_user_profile')
         .update({
-          'username': username,
-          'gender': gender,
-          'birthdate': birthdate.toIso8601String(),
+          'cw_username': username,
+          'cw_gender': gender,
+          'cw_birthdate': birthdate.toIso8601String(),
         })
-        .eq('uid', user.id)
+        .eq('cw_user_id', user.id)
         .select();
 
     if (response.isEmpty) {
