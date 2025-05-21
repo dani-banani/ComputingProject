@@ -1,97 +1,109 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'response_api.dart';
+import 'dart:convert';
+
+import 'api_response_json.dart';
+
+import '../model/api_response.dart';
+import '../model/login.dart';
+
 
 class RegistrationApi {
   final supabase = Supabase.instance.client;
 
   // Signup
-  static Future<String> signUpUser({
+  static Future<ApiResponse> signUpUser({
     required String email,
     required String password,
   }) async {
+    String response = "";
+
     try {
       final signUpResponse = await Supabase.instance.client.auth.signUp(
         email: email,
         password: password,
       );
+
       if (signUpResponse.user != null) {
-        return ResponseApi.dataSessionResponseHandler(
-          ["User registered successfully"],
-          true,
-          signUpResponse.user!.toJson(),
-          signUpResponse.session?.toJson() ?? {},
+        response = ApiResponseJson.dataSessionResponseHandler(
+          success: true,
+          message: ["User registered successfully"],
+          data: signUpResponse.user!.toJson(),
+          session: signUpResponse.session?.toJson() ?? {},
         );
-      } else {
-        return ResponseApi.dataSessionResponseHandler(
-          ["User registration failed"],
-          false,
-          {},
-          {},
-        );
+
+        return ApiResponse.fromJson(jsonDecode(response));
       }
+      response = ApiResponseJson.dataSessionResponseHandler(
+        success: false,
+        message: ["User registration failed"],
+      );
     } on AuthException catch (e) {
-      return ResponseApi.dataSessionResponseHandler(
-        ["Sign up failed: ${e.message}"],
-        false,
-        {},
-        {},
+      response = ApiResponseJson.dataSessionResponseHandler(
+        success: false,
+        message: ["Sign up failed: ${e.message}"],
       );
     } catch (e) {
-      return ResponseApi.dataSessionResponseHandler(
-        ["Unexpected error: $e"],
-        false,
-        {},
-        {},
+      response = ApiResponseJson.dataSessionResponseHandler(
+        success: false,
+        message: ["Unexpected error: $e"],
       );
     }
+
+    return ApiResponse.fromJson(jsonDecode(response));
   }
+
   // Update User Details
-static Future<String> updateUserProfile({
-  required String username,
-  required String gender,
-  required DateTime birthdate,
-}) async {
-  try {
-    final user = Supabase.instance.client.auth.currentUser;
+  static Future<String> updateUserProfile({
+    required String username,
+    required String gender,
+    required DateTime birthdate,
+  }) async {
+    try {
+      final user = Supabase.instance.client.auth.currentUser;
 
-    if (user == null) {
-      return ResponseApi.dataSessionResponseHandler(
-        ["User not authenticated"],
-        false,
+      if (user == null) {
+        return ApiResponseJson.dataSessionResponseHandler(
+          success: false,
+          message: ["User not authenticated"],
+        );
+      }
+
+      final response = await Supabase.instance.client
+          .from('cw_user_profile')
+          .update({
+            'cw_username': username,
+            'cw_gender': gender,
+            'cw_birthdate': birthdate.toIso8601String(),
+          })
+          .eq('cw_user_id', user.id)
+          .select();
+
+      if (response.isEmpty) {
+        return ApiResponseJson.dataSessionResponseHandler(
+          success: false,
+          message: ["No profile was updated UID may not exist"],
+        );
+      }
+
+      return ApiResponseJson.dataSessionResponseHandler(
+        success: true,
+        message: ["User profile updated successfully"],
+        data: {
+          "uid": user.id,
+          "username": username,
+          "gender": gender,
+          "birthdate": birthdate.toIso8601String()
+        },
+      );
+    } catch (e) {
+      return ApiResponseJson.dataSessionResponseHandler(
+        success: false,
+        message: ["Unexpected error: $e"],
       );
     }
-
-    final response = await Supabase.instance.client
-        .from('cw_user_profile')
-        .update({
-          'cw_username': username,
-          'cw_gender': gender,
-          'cw_birthdate': birthdate.toIso8601String(),
-        })
-        .eq('cw_user_id', user.id)
-        .select();
-
-    if (response.isEmpty) {
-      return ResponseApi.dataSessionResponseHandler(
-        ["No profile was updated UID may not exists)"],
-        false,
-      );
-    }
-
-    return ResponseApi.dataSessionResponseHandler(
-      ["User profile updated successfully"],
-      true,
-      {"uid": user.id, "username": username, "gender": gender, "birthdate": birthdate.toIso8601String()},
-    );
-  } catch (e) {
-    return ResponseApi.dataSessionResponseHandler(
-      ["Unexpected error: $e"],
-      false,
-    );
   }
-}
 
-  // Sign in 
+  // Sign in
   static Future<String> signInUser({
     required String email,
     required String password,
@@ -100,53 +112,53 @@ static Future<String> updateUserProfile({
       final signInResponse = await Supabase.instance.client.auth
           .signInWithPassword(email: email, password: password);
       if (signInResponse.user != null) {
-        return ResponseApi.dataSessionResponseHandler(
-          ["User logged in successfully"],
-          true,
-          signInResponse.user!.toJson(),
-          signInResponse.session?.toJson() ?? {},
+        return ApiResponseJson.dataSessionResponseHandler(
+          success: true,
+          message: ["User logged in successfully"],
+          data: signInResponse.user!.toJson(),
+          session: signInResponse.session?.toJson() ?? {},
         );
       } else {
-        return ResponseApi.dataSessionResponseHandler(
-          ["User login failed"],
-          false
+        return ApiResponseJson.dataSessionResponseHandler(
+          success: false,
+          message: ["User login failed"],
         );
       }
     } on AuthException catch (e) {
-      return ResponseApi.dataSessionResponseHandler(
-        ["Sign in failed: ${e.message}"],
-        false
+      return ApiResponseJson.dataSessionResponseHandler(
+        success: false,
+        message: ["Sign in failed: ${e.message}"],
       );
     } catch (e) {
-      return ResponseApi.dataSessionResponseHandler(
-        ["Unexpected error: $e"],
-        false
+      return ApiResponseJson.dataSessionResponseHandler(
+        success: false,
+        message: ["Unexpected error: $e"],
       );
     }
   }
-  
-  // Authenticate 
+
+  // Authenticate
   static Future<bool> authenticateUser() async {
     return Supabase.instance.client.auth.currentSession != null;
   }
-  
-  // Sign out 
+
+  // Sign out
   static Future<String> signOutUser() async {
     try {
       await Supabase.instance.client.auth.signOut();
-      return ResponseApi.dataSessionResponseHandler(
-        ["User signed out successfully"],
-        true
+      return ApiResponseJson.dataSessionResponseHandler(
+        success: true,
+        message: ["User signed out successfully"],
       );
     } on AuthException catch (e) {
-      return ResponseApi.dataSessionResponseHandler(
-        ["Sign out failed: ${e.message}"],
-        false
+      return ApiResponseJson.dataSessionResponseHandler(
+        success: false,
+        message: ["Sign out failed: ${e.message}"],
       );
     } catch (e) {
-      return ResponseApi.dataSessionResponseHandler(
-        ["Unexpected error: $e"],
-        false
+      return ApiResponseJson.dataSessionResponseHandler(
+        success: false,
+        message: ["Unexpected error: $e"],
       );
     }
   }

@@ -34,6 +34,17 @@ class _MainAppState extends State<MainApp> {
     String currentRoute = Get.currentRoute;
 
     return GetMaterialApp(
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Color(0xffBCB6A5),
+        ),
+        fontFamily: 'Poppins',
+        textTheme: const TextTheme(
+          bodyLarge: const TextStyle(fontSize: 36),
+          bodyMedium: const TextStyle(fontSize: 14),
+          bodySmall: const TextStyle(fontSize: 12),
+        ),
+      ),
       debugShowCheckedModeBanner: false,
       initialRoute: AppRoutes.registration,
       getPages: AppRoutes.pages,
