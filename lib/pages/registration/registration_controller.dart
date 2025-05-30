@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../navigation/app_routes.dart';
-import '../../api/authentication_api.dart';
+import '../../api/authentication.dart';
 import '../../widgets/error_snackbar_widget.dart';
 
 enum UserRegistrationState { login, signUp, providingDetails }
