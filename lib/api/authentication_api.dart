@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:convert';
 
@@ -6,16 +7,15 @@ import 'api_response_json.dart';
 import '../model/api_response.dart';
 import '../model/login.dart';
 
-
-class RegistrationApi {
+class AuthenticationApi {
   final supabase = Supabase.instance.client;
-
+  
   // Signup
   static Future<ApiResponse> signUpUser({
     required String email,
     required String password,
   }) async {
-    String response = "";
+    String jsonResponse = "";
 
     try {
       final signUpResponse = await Supabase.instance.client.auth.signUp(
@@ -24,48 +24,54 @@ class RegistrationApi {
       );
 
       if (signUpResponse.user != null) {
-        response = ApiResponseJson.dataSessionResponseHandler(
+        jsonResponse = ApiResponseJson.dataSessionResponseHandler(
           success: true,
           message: ["User registered successfully"],
           data: signUpResponse.user!.toJson(),
           session: signUpResponse.session?.toJson() ?? {},
         );
 
-        return ApiResponse.fromJson(jsonDecode(response));
+        return ApiResponse.fromJson(jsonDecode(jsonResponse));
       }
-      response = ApiResponseJson.dataSessionResponseHandler(
+      jsonResponse = ApiResponseJson.dataSessionResponseHandler(
         success: false,
         message: ["User registration failed"],
       );
     } on AuthException catch (e) {
-      response = ApiResponseJson.dataSessionResponseHandler(
+      jsonResponse = ApiResponseJson.dataSessionResponseHandler(
         success: false,
         message: ["Sign up failed: ${e.message}"],
       );
     } catch (e) {
-      response = ApiResponseJson.dataSessionResponseHandler(
+      jsonResponse = ApiResponseJson.dataSessionResponseHandler(
         success: false,
         message: ["Unexpected error: $e"],
       );
     }
 
-    return ApiResponse.fromJson(jsonDecode(response));
+    return ApiResponse.fromJson(jsonDecode(jsonResponse));
   }
 
   // Update User Details
-  static Future<String> updateUserProfile({
+  static Future<ApiResponse> updateUserProfile({
     required String username,
     required String gender,
     required DateTime birthdate,
   }) async {
+    String jsonResponse = "";
+
     try {
       final user = Supabase.instance.client.auth.currentUser;
 
+      debugPrint(user?.id);
+
       if (user == null) {
-        return ApiResponseJson.dataSessionResponseHandler(
+        jsonResponse = ApiResponseJson.dataSessionResponseHandler(
           success: false,
           message: ["User not authenticated"],
         );
+
+        return ApiResponse.fromJson(jsonDecode(jsonResponse));
       }
 
       final response = await Supabase.instance.client
@@ -78,14 +84,16 @@ class RegistrationApi {
           .eq('cw_user_id', user.id)
           .select();
 
-      if (response.isEmpty) {
-        return ApiResponseJson.dataSessionResponseHandler(
+      if (response.isEmpty) { 
+        jsonResponse = ApiResponseJson.dataSessionResponseHandler(
           success: false,
           message: ["No profile was updated UID may not exist"],
         );
+
+        return ApiResponse.fromJson(jsonDecode(jsonResponse));
       }
 
-      return ApiResponseJson.dataSessionResponseHandler(
+      jsonResponse = ApiResponseJson.dataSessionResponseHandler(
         success: true,
         message: ["User profile updated successfully"],
         data: {
@@ -96,45 +104,52 @@ class RegistrationApi {
         },
       );
     } catch (e) {
-      return ApiResponseJson.dataSessionResponseHandler(
+      jsonResponse = ApiResponseJson.dataSessionResponseHandler(
         success: false,
         message: ["Unexpected error: $e"],
       );
+
     }
+      return ApiResponse.fromJson(jsonDecode(jsonResponse));
   }
 
   // Sign in
-  static Future<String> signInUser({
+  static Future<ApiResponse> signInUser({
     required String email,
     required String password,
   }) async {
+    String jsonResponse = "";
+
     try {
       final signInResponse = await Supabase.instance.client.auth
           .signInWithPassword(email: email, password: password);
       if (signInResponse.user != null) {
-        return ApiResponseJson.dataSessionResponseHandler(
+        jsonResponse = ApiResponseJson.dataSessionResponseHandler(
           success: true,
           message: ["User logged in successfully"],
           data: signInResponse.user!.toJson(),
           session: signInResponse.session?.toJson() ?? {},
         );
-      } else {
-        return ApiResponseJson.dataSessionResponseHandler(
-          success: false,
-          message: ["User login failed"],
-        );
+        return ApiResponse.fromJson(jsonDecode(jsonResponse));
       }
+
+      jsonResponse = ApiResponseJson.dataSessionResponseHandler(
+        success: false,
+        message: ["User login failed"],
+      );
     } on AuthException catch (e) {
-      return ApiResponseJson.dataSessionResponseHandler(
+      jsonResponse = ApiResponseJson.dataSessionResponseHandler(
         success: false,
         message: ["Sign in failed: ${e.message}"],
       );
     } catch (e) {
-      return ApiResponseJson.dataSessionResponseHandler(
+      jsonResponse = ApiResponseJson.dataSessionResponseHandler(
         success: false,
         message: ["Unexpected error: $e"],
       );
     }
+
+    return ApiResponse.fromJson(jsonDecode(jsonResponse));
   }
 
   // Authenticate
@@ -143,23 +158,27 @@ class RegistrationApi {
   }
 
   // Sign out
-  static Future<String> signOutUser() async {
+  static Future<ApiResponse> signOutUser() async {
+    String jsonResponse = "";
+
     try {
       await Supabase.instance.client.auth.signOut();
-      return ApiResponseJson.dataSessionResponseHandler(
+      jsonResponse = ApiResponseJson.dataSessionResponseHandler(
         success: true,
         message: ["User signed out successfully"],
       );
     } on AuthException catch (e) {
-      return ApiResponseJson.dataSessionResponseHandler(
+      jsonResponse = ApiResponseJson.dataSessionResponseHandler(
         success: false,
         message: ["Sign out failed: ${e.message}"],
       );
     } catch (e) {
-      return ApiResponseJson.dataSessionResponseHandler(
+      jsonResponse = ApiResponseJson.dataSessionResponseHandler(
         success: false,
         message: ["Unexpected error: $e"],
       );
     }
+
+    return ApiResponse.fromJson(jsonDecode(jsonResponse));
   }
 }

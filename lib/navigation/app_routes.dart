@@ -1,10 +1,10 @@
-import 'package:computing_project/pages/registration/registration_controller.dart';
+import 'package:computing_project/navigation/app_bindings.dart';
 import 'package:get/get.dart';
 
 import '../pages/smile_page.dart';
 import '../pages/home_page.dart';
 import '../pages/add_task_page.dart';
-import '../pages/settings_page.dart';
+import '../pages/settings/settings_page.dart';
 import '../pages/task_list_page.dart';
 import '../pages/registration/registration_page.dart';
 
@@ -32,10 +32,8 @@ class AppRoutes {
     ),
     GetPage(
         name: AppRoutes.registration,
-        page: () => RegistrationPage(),
-        binding: BindingsBuilder(() {
-          Get.lazyPut(() => RegistrationController());
-        }))
+        page: () => RegistrationPage(colorScheme: Get.theme.colorScheme),
+        binding: AppBindings())
   ];
 
   static const String home = '/pages/home_page.dart';

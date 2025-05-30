@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:get/get_connect/http/src/utils/utils.dart';
 
 import 'navigation/app_routes.dart';
 import 'widgets/footer_navbar_widget.dart';
@@ -35,15 +36,26 @@ class _MainAppState extends State<MainApp> {
 
     return GetMaterialApp(
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Color(0xffBCB6A5),
+        colorScheme: const ColorScheme(
+          brightness: Brightness.light,
+          primary: Color(0xff545454),
+          onPrimary: Color(0xffffffff),
+          surface: Color(0xffF4F4F4),
+          onSurface: Color.fromARGB(255, 0, 0, 0),
+          primaryContainer: Color(0xffBCB6A5),
+          onPrimaryContainer: Color(0xffffffff),
+          secondary: Colors.black,
+          onSecondary: Colors.red,
+          error: Colors.red,
+          onError: Colors.red,
         ),
-        fontFamily: 'Poppins',
-        textTheme: const TextTheme(
-          bodyLarge: const TextStyle(fontSize: 36),
-          bodyMedium: const TextStyle(fontSize: 14),
-          bodySmall: const TextStyle(fontSize: 12),
-        ),
+        fontFamily: "Arial",
+        // textTheme: const TextTheme(
+
+        //   bodyLarge: const TextStyle(fontSize: 36),
+        //   bodyMedium: const TextStyle(fontSize: 14),
+        //   bodySmall: const TextStyle(fontSize: 12),
+        // ),
       ),
       debugShowCheckedModeBanner: false,
       initialRoute: AppRoutes.registration,

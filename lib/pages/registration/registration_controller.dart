@@ -3,31 +3,141 @@ import 'package:get/get.dart';
 
 import '../../navigation/app_routes.dart';
 import '../../api/authentication_api.dart';
+import '../../widgets/error_snackbar_widget.dart';
 
-//This page is like the state manager for the registration page, and this is where I will call the APi class functions. So basicaclly each page will be placed in a folder like this, one page, one controller.
-
-enum UserState {
-  login,
-  signUp,
-}
+enum UserRegistrationState { login, signUp, providingDetails }
 
 class RegistrationController extends GetxController {
-  Rx<UserState> userState = UserState.login.obs;
+  Rx<UserRegistrationState> userRegistrationState =
+      UserRegistrationState.login.obs;
 
   Rx<TextEditingController> emailController = TextEditingController().obs;
   Rx<TextEditingController> passwordController = TextEditingController().obs;
+  Rx<TextEditingController> confirmPasswordController =
+      TextEditingController().obs;
+  Rx<TextEditingController> usernameController = TextEditingController().obs;
+  Rx<TextEditingController> birthdateController = TextEditingController().obs;
 
-  RxString email = ''.obs;
-  RxString password = ''.obs;
+  RxString gender = "".obs;
+  Rx<DateTime> birthdate = DateTime.now().obs;
 
-  @override
-  void onInit() {
-    // TODO: Check user auth session
-    super.onInit();
+  RxBool isBirthdateSelected = false.obs;
+
+  void onSwitchRegistrationMethod() {
+    if (userRegistrationState.value == UserRegistrationState.signUp) {
+      userRegistrationState.value = UserRegistrationState.login;
+    } else {
+      userRegistrationState.value = UserRegistrationState.signUp;
+    }
+
+    emailController.value.text = "";
+    passwordController.value.text = "";
+    confirmPasswordController.value.text = "";
   }
 
   void onLogin() {
     List<String> errorMessages = [];
+
+    errorMessages.addAll(checkEmailAndPasswordFields());
+
+    if (errorMessages.isNotEmpty) {
+      ErrorSnackbarWidget.showSnackbar(
+          title: "Login Failed",
+          messages: errorMessages,);
+      return;
+    }
+
+    AuthenticationApi.signInUser(
+            email: emailController.value.text,
+            password: passwordController.value.text)
+        .then((response) {
+      if (!response.success) {
+        ErrorSnackbarWidget.showSnackbar(
+            title: "Login Failed",
+            messages: response.message,);
+        return;
+      }
+
+      Get.offNamed(AppRoutes.home);
+    });
+  }
+
+  void onSignUp() {
+    List<String> errorMessages = [];
+
+    errorMessages.addAll(checkEmailAndPasswordFields());
+
+    if (confirmPasswordController.value.text.isEmpty) {
+      errorMessages.add("Confirm password field is empty");
+    }
+
+    if (confirmPasswordController.value.text != passwordController.value.text) {
+      errorMessages.add("Password fields do not match");
+    }
+
+    if (errorMessages.isNotEmpty) {
+      ErrorSnackbarWidget.showSnackbar(
+          title: "Sign Up Failed",
+          messages: errorMessages,);
+      return;
+    }
+
+    AuthenticationApi.signUpUser(
+            email: emailController.value.text,
+            password: passwordController.value.text)
+        .then((response) {
+      if (!response.success) {
+        ErrorSnackbarWidget.showSnackbar(
+            title: "Sign Up Failed",
+            messages: response.message,);
+        return;
+      }
+
+      userRegistrationState.value = UserRegistrationState.providingDetails;
+    });
+  }
+
+  void onSubmitDetails() {
+    List<String> errorMessages = [];
+
+    if (usernameController.value.text.isEmpty) {
+      errorMessages.add("Username field is empty");
+    }
+
+    if (gender.value.isEmpty) {
+      errorMessages.add("Gender field is empty");
+    }
+
+    if (!isBirthdateSelected.value) {
+      errorMessages.add("Birthdate field is empty");
+    }
+
+    if (errorMessages.isNotEmpty) {
+      ErrorSnackbarWidget.showSnackbar(
+          title: "Sign Up Failed",
+          messages: errorMessages);
+      return;
+    }
+
+    AuthenticationApi.updateUserProfile(
+      username: usernameController.value.text,
+      gender: gender.value,
+      birthdate: birthdate.value,
+    ).then((response) {
+      if (!response.success) {
+        ErrorSnackbarWidget.showSnackbar(
+            title: "Sign Up Failed",
+            messages: response.message,);
+        return;
+      }
+
+      Get.offNamed(AppRoutes.home);
+    });
+  }
+
+  List<String> checkEmailAndPasswordFields() {
+    List<String> errorMessages = [];
+
     if (emailController.value.text.isEmpty) {
       errorMessages.add("Email field is empty");
     }
@@ -36,33 +146,44 @@ class RegistrationController extends GetxController {
       errorMessages.add("Password field is empty");
     }
 
-    if (errorMessages.isNotEmpty) {
-      Get.snackbar(
-        "",
-        "",
-        animationDuration: const Duration(seconds: 1),
-        duration: const Duration(seconds: 2),
-        isDismissible: true,
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.redAccent,
-        titleText: const Center(child: Text("Login Failed", style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white))),
-        messageText: Center(child: Text(errorMessages.join('\n'),textAlign: TextAlign.center,style: const TextStyle(color: Colors.white))),
-      );
-      return;
-    }
-
-    RegistrationApi.signUpUser(
-        email: emailController.value.text, password: passwordController.value.text).then((value) {
-      if(value.success){
-        Get.toNamed(AppRoutes.home);
-      }else{
-        Get.snackbar(
-          "Error",
-          value.message.map((e) => e.toString()).join('\n'),
-        );
-      }
-    });
-
+    return errorMessages;
   }
 
+  // void showErrorToast(
+  //     {required String title, required List<String> errorMessages}) {
+  //   Get.snackbar("", "",
+  //       animationDuration: const Duration(milliseconds: 500),
+  //       duration: const Duration(milliseconds: 1500),
+  //       isDismissible: true,
+  //       snackPosition: SnackPosition.TOP,
+  //         backgroundColor: colorScheme.primaryContainer,
+  //       titleText: Center(
+  //           child: Text(title,
+  //               style: const TextStyle(
+  //                   fontSize: 16,
+  //                   fontWeight: FontWeight.bold,
+  //                   color: Color.fromARGB(255, 118, 0, 0)))),
+  //       messageText: Center(
+  //           child: Text(errorMessages.join('\n'),
+  //               textAlign: TextAlign.center,
+  //               style: const TextStyle(color: Colors.black))),
+  //       overlayBlur: 0.5);
+  // }
+
+  void onDatePickerTap(BuildContext context) {
+    showDatePicker(
+      context: Get.context!,
+      firstDate: DateTime.now().subtract(Duration(days: 365 * 100)),
+      lastDate: DateTime.now(),
+      initialDatePickerMode: DatePickerMode.day,
+      initialEntryMode: DatePickerEntryMode.calendarOnly,
+      helpText: "Select Birthdate",
+    ).then((date) {
+      if (date == null) return;
+      if (date == birthdate.value) return;
+
+      birthdate.value = date;
+      isBirthdateSelected.value = true;
+    });
+  }
 }

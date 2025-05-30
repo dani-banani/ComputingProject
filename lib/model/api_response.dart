@@ -1,6 +1,6 @@
 class ApiResponse {
   final bool success;
-  final List<dynamic> message;
+  final List<String> message;
   final Map<String, dynamic> data;
   final Map<String, dynamic> session;
 
@@ -14,7 +14,7 @@ class ApiResponse {
       {Function(Map<String, dynamic>)? fromJson}) {
     return ApiResponse(
         success: json['success'],
-        message: json['message'],
+        message: (json['message'] as List).map((e) => e.toString()).toList(),
         data: fromJson != null ? fromJson(json['data']) : json['data'],
         session: json['session']);
   }
