@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
-import '../../navigation/app_routes.dart';
 import './registration_controller.dart';
 
 class RegistrationPage extends GetView<RegistrationController> {
   final ColorScheme colorScheme;
-  RegistrationPage({Key? key, required this.colorScheme}) : super(key: key);
+  const RegistrationPage({super.key, required this.colorScheme});
 
+  @override
   Widget build(BuildContext context) {
     String userRegistrationStateLabel;
     List<Widget> activeForm;

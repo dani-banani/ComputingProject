@@ -28,7 +28,7 @@ class MainApp extends StatefulWidget {
 class _MainAppState extends State<MainApp> {
   final supabase = Supabase.instance.client;
 
-  final List<String> noFooterRoutes = [AppRoutes.registration];
+  final List<String> noFooterRoutes = [AppRoutes.registration,AppRoutes.splash];
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +58,7 @@ class _MainAppState extends State<MainApp> {
         // ),
       ),
       debugShowCheckedModeBanner: false,
-      initialRoute: AppRoutes.registration,
+      initialRoute: AppRoutes.splash,
       getPages: AppRoutes.pages,
       navigatorKey: Get.key,
       navigatorObservers: [

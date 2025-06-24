@@ -16,7 +16,6 @@ class RegistrationController extends GetxController {
   Rx<TextEditingController> confirmPasswordController =
       TextEditingController().obs;
   Rx<TextEditingController> usernameController = TextEditingController().obs;
-  Rx<TextEditingController> birthdateController = TextEditingController().obs;
 
   RxString gender = "".obs;
   Rx<DateTime> birthdate = DateTime.now().obs;

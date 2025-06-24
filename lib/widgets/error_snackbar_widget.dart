@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 class ErrorSnackbarWidget {
   static void showSnackbar({required String title, required List<String> messages}) {
     
-      print("ErrorSnackbarWidget build");
       Get.snackbar(
         "",
         "",
