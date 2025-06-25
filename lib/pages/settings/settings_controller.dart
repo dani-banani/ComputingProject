@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:flutter/foundation.dart';
 
-import '../../api/authentication.dart';
+import '../../api/authentication_api.dart';
 import '../../navigation/app_routes.dart';
 import '../../widgets/error_snackbar_widget.dart';
 

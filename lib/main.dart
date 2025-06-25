@@ -28,7 +28,10 @@ class MainApp extends StatefulWidget {
 class _MainAppState extends State<MainApp> {
   final supabase = Supabase.instance.client;
 
-  final List<String> noFooterRoutes = [AppRoutes.registration,AppRoutes.splash];
+  final List<String> noFooterRoutes = [
+    AppRoutes.registration,
+    AppRoutes.splash
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -38,16 +41,16 @@ class _MainAppState extends State<MainApp> {
       theme: ThemeData(
         colorScheme: const ColorScheme(
           brightness: Brightness.light,
-          primary: Color(0xff545454),
-          onPrimary: Color(0xffffffff),
-          surface: Color(0xffF4F4F4),
-          onSurface: Color.fromARGB(255, 0, 0, 0),
-          primaryContainer: Color(0xffBCB6A5),
-          onPrimaryContainer: Color(0xffffffff),
-          secondary: Colors.black,
-          onSecondary: Colors.red,
-          error: Colors.red,
-          onError: Colors.red,
+          primary: Color(0xff3D2914),
+          onPrimary: Color(0xffFFFFFF),
+          surface: Color(0xffE8E8E8),
+          onSurface: Color(0xff2C2C2C),
+          primaryContainer: Color(0xffF5F5F5),
+          onPrimaryContainer: Color(0xff3D2914),
+          secondary: Color(0xff8B7355),
+          onSecondary: Color(0xffFFFFFF),
+          error: Color(0xffB3261E),
+          onError: Color(0xffFFFFFF),
         ),
         fontFamily: "Arial",
         // textTheme: const TextTheme(
@@ -63,12 +66,12 @@ class _MainAppState extends State<MainApp> {
       navigatorKey: Get.key,
       navigatorObservers: [
         GetObserver((routing) => {
-          SchedulerBinding.instance.addPostFrameCallback((_){
-              setState(() {
-                currentRoute = Get.currentRoute;
-              });
+              SchedulerBinding.instance.addPostFrameCallback((_) {
+                setState(() {
+                  currentRoute = Get.currentRoute;
+                });
+              })
             })
-  })
       ],
       builder: (context, child) {
         return Scaffold(
@@ -77,9 +80,13 @@ class _MainAppState extends State<MainApp> {
               child ?? const SizedBox.shrink(),
               (noFooterRoutes.contains(currentRoute))
                   ? const SizedBox.shrink()
-                  :
-                   Positioned(
-                      bottom: 0, left: 0, right: 0, child: FooterNavbarWidget(currentPage: currentRoute,))
+                  : Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: FooterNavbarWidget(
+                        currentPage: currentRoute,
+                      ))
             ],
           ),
         );

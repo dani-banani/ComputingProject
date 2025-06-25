@@ -31,11 +31,11 @@ class _SplashPageState extends State<SplashPage> {
   @override
   Widget build(BuildContext context) {
     SchedulerBinding.instance.addPostFrameCallback((_) async{
-      await Future.delayed(Duration(seconds: 5));
+      await Future.delayed(const Duration(seconds: 5));
       await authenticateUser();
     });
 
-    return Center(
+    return const Center(
       child: Text("I am a splash page"),
     );
   }

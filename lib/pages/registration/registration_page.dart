@@ -1,7 +1,11 @@
+import 'package:computing_project/widgets/dropdown_widget.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
+
+import 'package:computing_project/widgets/text_field_widget.dart';
+import 'package:computing_project/widgets/date_picker_widget.dart';
+import 'package:computing_project/widgets/button_widget.dart';
 
 import './registration_controller.dart';
 
@@ -95,45 +99,6 @@ class RegistrationPage extends GetView<RegistrationController> {
     });
   }
 
-  Widget buildTextFieldWidget(ColorScheme colorScheme,
-      {String hintText = "",
-      TextEditingController? textController,
-      bool isTextHidden = false}) {
-    return TextField(
-      cursorColor: colorScheme.onPrimaryContainer,
-      style: TextStyle(color: colorScheme.onPrimaryContainer, fontSize: 16),
-      decoration: InputDecoration(
-        filled: true,
-        fillColor: colorScheme.primaryContainer,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-        hintText: hintText,
-        hintStyle: TextStyle(color: colorScheme.onPrimaryContainer),
-        focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide(width: 1, color: colorScheme.primary)),
-        border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none),
-      ),
-      obscureText: isTextHidden,
-      controller: textController,
-    );
-  }
-
-  Widget buildSubmitButton(Function() onFormSubmitted, String buttonLabel) {
-    return ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: colorScheme.primary,
-          foregroundColor: colorScheme.onPrimary,
-          minimumSize: Size(Get.width * 0.4, 50),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(25),
-          ),
-        ),
-        onPressed: onFormSubmitted,
-        child: Text(buttonLabel));
-  }
-
   List<Widget> buildFormFooterTexts(RegistrationController controller,
       {required String questionText,
       required String actionText,
@@ -175,15 +140,24 @@ class RegistrationPage extends GetView<RegistrationController> {
 
   List<Widget> buildLoginForm(RegistrationController controller) {
     return [
-      buildTextFieldWidget(colorScheme,
-          hintText: "Email", textController: controller.emailController.value),
+      TextFieldWidget(
+          colorScheme: colorScheme,
+          hintText: "Email",
+          textController: controller.emailController.value,
+          isTextHidden: false),
       const SizedBox(height: 20),
-      buildTextFieldWidget(colorScheme,
+      TextFieldWidget(
+          colorScheme: colorScheme,
           hintText: "Password",
           textController: controller.passwordController.value,
           isTextHidden: true),
       const SizedBox(height: 40),
-      buildSubmitButton(controller.onLogin, "Login"),
+      ButtonWidget(
+          colorScheme: colorScheme,
+          child: Text("Login"),
+          onPressed: controller.onLogin,
+          width: Get.width * 0.4,
+          height: 50),
       const SizedBox(height: 20),
       ...buildFormFooterTexts(controller,
           questionText: "Don't have an account? ",
@@ -194,20 +168,30 @@ class RegistrationPage extends GetView<RegistrationController> {
 
   List<Widget> buildSignUpForm(RegistrationController controller) {
     return [
-      buildTextFieldWidget(colorScheme,
-          hintText: "Email", textController: controller.emailController.value),
+      TextFieldWidget(
+          colorScheme: colorScheme,
+          hintText: "Email",
+          textController: controller.emailController.value,
+          isTextHidden: false),
       const SizedBox(height: 20),
-      buildTextFieldWidget(colorScheme,
+      TextFieldWidget(
+          colorScheme: colorScheme,
           hintText: "Password",
           textController: controller.passwordController.value,
           isTextHidden: true),
       const SizedBox(height: 20),
-      buildTextFieldWidget(colorScheme,
+      TextFieldWidget(
+          colorScheme: colorScheme,
           hintText: "Confirm Password",
           textController: controller.confirmPasswordController.value,
           isTextHidden: true),
       const SizedBox(height: 40),
-      buildSubmitButton(controller.onSignUp, "Sign Up"),
+      ButtonWidget(
+          colorScheme: colorScheme,
+          child: Text("Sign Up"),
+          onPressed: controller.onSignUp,
+          width: Get.width * 0.4,
+          height: 50),
       const SizedBox(height: 20),
       ...buildFormFooterTexts(
         controller,
@@ -222,70 +206,35 @@ class RegistrationPage extends GetView<RegistrationController> {
     List<String> genderDropdownValues = ["Male", "Female"];
 
     return [
-      buildTextFieldWidget(colorScheme,
-          hintText: "Username",
-          textController: controller.usernameController.value),
-      const SizedBox(height: 20),
-      Container(
-        height: 50,
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        decoration: BoxDecoration(
-          color: colorScheme.primaryContainer,
-          borderRadius: BorderRadius.circular(25),
-        ),
-        child: DropdownButton<String>(
-            isExpanded: true,
-            hint: Text(
-                controller.gender.value.isEmpty
-                    ? "Select Gender"
-                    : controller.gender.value,
-                style: TextStyle(
-                    color: colorScheme.onPrimaryContainer, fontSize: 16)),
-            icon: Icon(Icons.arrow_drop_down,
-                color: colorScheme.onPrimaryContainer),
-            dropdownColor: colorScheme.primaryContainer,
-            style: TextStyle(color: colorScheme.onPrimaryContainer),
-            borderRadius: BorderRadius.circular(25),
-            items: genderDropdownValues.map((item) {
-              return DropdownMenuItem(value: item, child: Text(item));
-            }).toList(),
-            onChanged: (selection) {
-              if (selection == null) return;
-              if (selection == controller.gender.value) return;
-
-              controller.gender.value = selection;
-            }),
+      TextFieldWidget(
+        colorScheme: colorScheme,
+        hintText: "Username",
+        textController: controller.usernameController.value,
+        isTextHidden: false,
       ),
       const SizedBox(height: 20),
-      GestureDetector(
-        onTap: () {
-          controller.onDatePickerTap(context);
-        },
-        child: Container(
-          height: 50,
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          decoration: BoxDecoration(
-            color: colorScheme.primaryContainer,
-            borderRadius: BorderRadius.circular(25),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                controller.isBirthdateSelected.value
-                    ? DateFormat('dd/MM/yyyy').format(controller.birthdate.value)
-                    : "Select Birthdate",
-                style: TextStyle(
-                    color: colorScheme.onPrimaryContainer, fontSize: 16),
-              ),
-              Icon(Icons.calendar_month,
-                  color: colorScheme.onPrimaryContainer)
-            ]),
-        ),
-      ),
+      DropdownWidget(
+          colorScheme: colorScheme,
+          hintText: "Select Gender",
+          value: controller.gender.value,
+          dropdownItems: genderDropdownValues,
+          onChanged: controller.onSelectGender),
+      const SizedBox(height: 20),
+      DatePickerWidget(
+          colorScheme: colorScheme,
+          onDateSelected: (context) {
+            controller.onDatePickerTap(context);
+          },
+          isSelected: controller.isBirthdateSelected.value,
+          selectedDate: controller.birthdate.value,
+          helpText: "Select Birthdate"),
       const SizedBox(height: 40),
-      buildSubmitButton(controller.onSubmitDetails, "Submit")
+      ButtonWidget(
+          colorScheme: colorScheme,
+          child: Text("Submit"),
+          onPressed: controller.onSubmitDetails,
+          width: Get.width * 0.4,
+          height: 50)
     ];
   }
 }

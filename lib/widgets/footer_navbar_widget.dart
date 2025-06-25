@@ -6,7 +6,7 @@ import '../navigation/app_routes.dart';
 class FooterNavbarWidget extends StatefulWidget {
   final String currentPage;
 
-  FooterNavbarWidget({super.key, required this.currentPage});
+  const FooterNavbarWidget({super.key, required this.currentPage});
 
   @override
   State<FooterNavbarWidget> createState() => _FooterNavbarWidgetState();
@@ -72,7 +72,7 @@ class _FooterNavbarWidgetState extends State<FooterNavbarWidget> {
 
     return InkWell(
       onTap: () {
-        Get.toNamed(
+        Get.offAllNamed(
           navbarItem.targetPage,
         );
       },

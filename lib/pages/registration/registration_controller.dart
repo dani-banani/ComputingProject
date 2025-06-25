@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../navigation/app_routes.dart';
-import '../../api/authentication.dart';
+import '../../api/authentication_api.dart';
 import '../../widgets/error_snackbar_widget.dart';
 
 enum UserRegistrationState { login, signUp, providingDetails }
@@ -22,6 +22,11 @@ class RegistrationController extends GetxController {
 
   RxBool isBirthdateSelected = false.obs;
 
+  void onSelectGender(String value) {
+    if (value == gender.value) return;
+    gender.value = value;
+  }
+
   void onSwitchRegistrationMethod() {
     if (userRegistrationState.value == UserRegistrationState.signUp) {
       userRegistrationState.value = UserRegistrationState.login;
@@ -34,34 +39,35 @@ class RegistrationController extends GetxController {
     confirmPasswordController.value.text = "";
   }
 
-  void onLogin() {
+  void onLogin() async {
     List<String> errorMessages = [];
 
     errorMessages.addAll(checkEmailAndPasswordFields());
 
     if (errorMessages.isNotEmpty) {
       ErrorSnackbarWidget.showSnackbar(
-          title: "Login Failed",
-          messages: errorMessages,);
+        title: "Login Failed",
+        messages: errorMessages,
+      );
       return;
     }
 
-    AuthenticationApi.signInUser(
+    final response = await AuthenticationApi.signInUser(
             email: emailController.value.text,
-            password: passwordController.value.text)
-        .then((response) {
-      if (!response.success) {
+            password: passwordController.value.text);
+
+    if (!response.success) {
         ErrorSnackbarWidget.showSnackbar(
-            title: "Login Failed",
-            messages: response.message,);
+          title: "Login Failed",
+          messages: response.message,
+        );
         return;
       }
 
-      Get.offNamed(AppRoutes.home);
-    });
+    Get.offNamed(AppRoutes.home);
   }
 
-  void onSignUp() {
+  void onSignUp() async {
     List<String> errorMessages = [];
 
     errorMessages.addAll(checkEmailAndPasswordFields());
@@ -76,27 +82,26 @@ class RegistrationController extends GetxController {
 
     if (errorMessages.isNotEmpty) {
       ErrorSnackbarWidget.showSnackbar(
-          title: "Sign Up Failed",
-          messages: errorMessages,);
+        title: "Sign Up Failed",
+        messages: errorMessages,
+      );
       return;
     }
 
-    AuthenticationApi.signUpUser(
-            email: emailController.value.text,
-            password: passwordController.value.text)
-        .then((response) {
-      if (!response.success) {
-        ErrorSnackbarWidget.showSnackbar(
-            title: "Sign Up Failed",
-            messages: response.message,);
-        return;
-      }
+    final response = await AuthenticationApi.signUpUser(
+        email: emailController.value.text,
+        password: passwordController.value.text);
 
-      userRegistrationState.value = UserRegistrationState.providingDetails;
-    });
+    if (!response.success) {
+      ErrorSnackbarWidget.showSnackbar(
+          title: "Sign Up Failed", messages: response.message);
+      return;
+    }
+
+    userRegistrationState.value = UserRegistrationState.providingDetails;
   }
 
-  void onSubmitDetails() {
+  void onSubmitDetails() async {
     List<String> errorMessages = [];
 
     if (usernameController.value.text.isEmpty) {
@@ -113,25 +118,22 @@ class RegistrationController extends GetxController {
 
     if (errorMessages.isNotEmpty) {
       ErrorSnackbarWidget.showSnackbar(
-          title: "Sign Up Failed",
-          messages: errorMessages);
+          title: "Sign Up Failed", messages: errorMessages);
       return;
     }
 
-    AuthenticationApi.updateUserProfile(
+    final response = await AuthenticationApi.updateUserProfile(
       username: usernameController.value.text,
       gender: gender.value,
       birthdate: birthdate.value,
-    ).then((response) {
-      if (!response.success) {
-        ErrorSnackbarWidget.showSnackbar(
-            title: "Sign Up Failed",
-            messages: response.message,);
-        return;
-      }
+    );
 
-      Get.offNamed(AppRoutes.home);
-    });
+    if (!response.success) {
+      ErrorSnackbarWidget.showSnackbar(title: "Sign Up Failed", messages: response.message);
+      return;
+    }
+
+    Get.offNamed(AppRoutes.home);
   }
 
   List<String> checkEmailAndPasswordFields() {

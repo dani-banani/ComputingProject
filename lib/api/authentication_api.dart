@@ -1,15 +1,12 @@
-import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:convert';
 
 import 'api_response_json.dart';
 
 import '../model/api_response.dart';
-import '../model/login.dart';
+import '../model/user_data.dart';
 
-class AuthenticationApi {
-  final supabase = Supabase.instance.client;
-  
+class AuthenticationApi {  
   // Signup
   static Future<ApiResponse> signUpUser({
     required String email,
@@ -62,8 +59,6 @@ class AuthenticationApi {
 
     try {
       final user = Supabase.instance.client.auth.currentUser;
-
-      debugPrint(user?.id);
 
       if (user == null) {
         jsonResponse = ApiResponseJson.dataSessionResponseHandler(
