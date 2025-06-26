@@ -64,7 +64,7 @@ class RegistrationController extends GetxController {
         return;
       }
 
-    Get.offNamed(AppRoutes.home);
+    Get.offAllNamed(AppRoutes.home);
   }
 
   void onSignUp() async {
@@ -133,7 +133,7 @@ class RegistrationController extends GetxController {
       return;
     }
 
-    Get.offNamed(AppRoutes.home);
+    Get.offAllNamed(AppRoutes.home);
   }
 
   List<String> checkEmailAndPasswordFields() {

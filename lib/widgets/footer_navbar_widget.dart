@@ -31,7 +31,6 @@ class _FooterNavbarWidgetState extends State<FooterNavbarWidget> {
     activeItem.isActive = true;
 
     return Container(
-      height: 200,
       color: Colors.transparent,
       padding: EdgeInsets.symmetric(horizontal: 10),
       child: Stack(

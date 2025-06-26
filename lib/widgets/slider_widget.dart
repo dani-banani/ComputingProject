@@ -49,7 +49,7 @@ class _SliderWidgetState extends State<SliderWidget> {
               child: Text(
                 widget.value.toString(),
                 style: TextStyle(
-                    color: widget.colorScheme.onPrimary, fontWeight: FontWeight.bold),
+                    color: widget.colorScheme.onPrimaryContainer, fontWeight: FontWeight.bold),
               )),
         ],
       ),

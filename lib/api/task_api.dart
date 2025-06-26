@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:computing_project/api/api_response_json.dart';
 import 'package:computing_project/api/authentication_api.dart';
+import 'package:computing_project/model/task_list.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../model/api_response.dart';
@@ -19,29 +20,17 @@ class TaskApi {
   }) async {
     String jsonResponse = "";
     try {
-      // final categoriesInDb = await Supabase.instance.client
-      //     .from('cw_user_categories')
-      //     .select('cw_category_id')
-      //     .eq('cw_user_id', user.id);
-      // final categoryIds = (categoriesInDb as List)
-      //     .map((e) => e['cw_category_id'] as int)
-      //     .toList();
-      // if (!categoryIds.contains(category)) {
-      //   jsonResponse = ApiResponseJson.dataSessionResponseHandler(
-      //     success: false,
-      //     message: ["Invalid category ID"],
-      //   );
-      //   return ApiResponse.fromJson(jsonDecode(jsonResponse));
-      // }
-
-      final user = Supabase.instance.client.auth.currentUser;
-      if (user == null) {
+      final userAuthResponse = await AuthenticationApi.authenticateUser();
+      if (userAuthResponse == null) {
         jsonResponse = ApiResponseJson.dataSessionResponseHandler(
           success: false,
           message: ["User not authenticated"],
+          session: false,
         );
         return ApiResponse.fromJson(jsonDecode(jsonResponse));
       }
+
+      final userId = userAuthResponse.data.userId;
 
       final response =
           await Supabase.instance.client.from('cw_user_tasks').insert({
@@ -53,7 +42,7 @@ class TaskApi {
         'cw_task_difficulty': difficulty,
         'cw_task_description': description,
         'cw_task_name': name,
-        'cw_user_id': user.id
+        'cw_user_id': userId
       }).select();
 
       if (response.isEmpty) {
@@ -69,7 +58,7 @@ class TaskApi {
         success: true,
         message: ["User profile updated successfully"],
         data: {
-          "uid": user.id,
+          "uid": userId,
           "dueDate": dueDate.toIso8601String(),
           "category": category,
           "priority": priority,
@@ -92,19 +81,22 @@ class TaskApi {
   static Future<ApiResponse> getUserTasks() async {
     String jsonResponse = "";
     try {
-      final user = Supabase.instance.client.auth.currentUser;
-      if (user == null) {
+      final userAuthResponse = await AuthenticationApi.authenticateUser();
+      if (userAuthResponse == null) {
         jsonResponse = ApiResponseJson.dataSessionResponseHandler(
           success: false,
           message: ["User not authenticated"],
+          session: false,
         );
         return ApiResponse.fromJson(jsonDecode(jsonResponse));
       }
 
+      final userId = userAuthResponse.data.userId;
+
       final response = await Supabase.instance.client
           .from('cw_user_tasks')
           .select()
-          .eq('cw_user_id', user.id);
+          .eq('cw_user_id', userId);
 
       jsonResponse = ApiResponseJson.dataSessionResponseHandler(
         success: true,
@@ -118,5 +110,68 @@ class TaskApi {
       );
     }
     return ApiResponse.fromJson(jsonDecode(jsonResponse));
+  }
+
+  static Future<ApiResponse<TaskList>> getUserCategoriesWithTasks() async {
+    String jsonResponse = "";
+    try {
+      final userAuthResponse = await AuthenticationApi.authenticateUser();
+      if (userAuthResponse == null) {
+        jsonResponse = ApiResponseJson.dataSessionResponseHandler(
+          success: false,
+          message: ["User not authenticated"],
+          session: false,
+        );
+        return ApiResponse.fromJson(jsonDecode(jsonResponse));
+      }
+
+      final userId = userAuthResponse.data.userId;
+
+      final categories = await Supabase.instance.client
+          .from('cw_user_categories')
+          .select('cw_category_id, cw_category_name, cw_category_color')
+          .eq('cw_user_id', userId);
+      final tasks = await Supabase.instance.client
+          .from('cw_user_tasks')
+          .select()
+          .eq('cw_user_id', userId);
+
+      categories.sort((a, b) =>
+          (a['cw_category_id'] as int).compareTo(b['cw_category_id'] as int));
+      tasks.sort(
+          (a, b) => (a['cw_task_id'] as int).compareTo(b['cw_task_id'] as int));
+
+      final Map<int, List<dynamic>> tasksByCategory = {};
+
+      for (final task in tasks) {
+        final categoryId = task['cw_category_id'];
+        tasksByCategory.putIfAbsent(categoryId, () => []).add(task);
+      }
+
+      final List<Map<String, dynamic>> categoriesWithTasks = [];
+      for (final category in categories) {
+        final categoryId = category['cw_category_id'];
+        categoriesWithTasks.add({
+          ...category,
+          'tasks': tasksByCategory[categoryId] ?? [],
+        });
+      }
+
+      jsonResponse = ApiResponseJson.dataSessionResponseHandler(
+        success: true,
+        message: ["user task and categories pulled"],
+        data: {
+          'taskList': categoriesWithTasks,
+        },
+      );
+
+
+    } catch (e) {
+      jsonResponse = ApiResponseJson.dataSessionResponseHandler(
+        success: false,
+        message: ["Unexpected error: $e"],
+      );
+    }
+    return ApiResponse.fromJson(jsonDecode(jsonResponse),fromJson: TaskList.fromJson);
   }
 }

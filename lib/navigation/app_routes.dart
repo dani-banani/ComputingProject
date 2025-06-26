@@ -2,7 +2,7 @@ import 'package:computing_project/navigation/app_bindings.dart';
 import 'package:get/get.dart';
 
 import '../pages/smile_page.dart';
-import '../pages/home_page.dart';
+import '../pages/home_page/home_page.dart';
 import '../pages/add_task/add_task_page.dart';
 import '../pages/settings/settings_page.dart';
 import '../pages/task_list/task_list_page.dart';
@@ -13,7 +13,7 @@ class AppRoutes {
   static List<GetPage> pages = [
     GetPage(
       name: AppRoutes.home,
-      page: () => HomePage(),
+      page: () => HomePage(colorScheme: Get.theme.colorScheme),
     ),
     GetPage(
       name: AppRoutes.addTask,

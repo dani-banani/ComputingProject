@@ -1,4 +1,7 @@
 import 'package:computing_project/api/task_api.dart';
+import 'package:computing_project/model/task_list.dart';
+import 'package:computing_project/pages/home_page/home_controller.dart';
+import 'package:computing_project/pages/task_list/task_list_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:computing_project/api/authentication_api.dart';
@@ -8,6 +11,9 @@ import '../../navigation/app_routes.dart';
 import '../../widgets/error_snackbar_widget.dart';
 
 class AddTaskController extends GetxController {
+  HomeController homeController = Get.find();
+  TaskListController taskListController = Get.find();
+
   Rx<TextEditingController> taskNameController = TextEditingController().obs;
   Rx<TextEditingController> taskDescriptionController =
       TextEditingController().obs;
@@ -16,23 +22,33 @@ class AddTaskController extends GetxController {
   Rx<int> priority = 1.obs;
   Rx<int> daysBeforeReminder = 0.obs;
   Rx<int> reminderFrequency = 0.obs;
-  Rx<int> categoryId = 1.obs;
+  Rx<int> categoryId = 0.obs;
   Rx<bool> isDueDateSelected = false.obs;
+  Rx<String> selectedCategory = "".obs;
+
+  RxList<ListItem> categories = <ListItem>[].obs;
+
+  @override
+  void onInit() async {
+    super.onInit();
+    onRefresh();
+  }
+
+  void onRefresh() async {
+    final response = await TaskApi.getUserCategoriesWithTasks();
+    if (!response.success) {
+      ErrorSnackbarWidget.showSnackbar(title: "Error", messages: response.message);
+      return;
+    }
+
+    categories.value = response.data.listItems;
+  }
 
   void onAddTask() async {
     List<String> errorMessages = [];
 
     if (taskNameController.value.text.isEmpty) {
       errorMessages.add("Task name is empty");
-    }
-
-    // if (taskDescriptionController.value.text.isEmpty) {
-    //   errorMessages.add("Task description is empty");
-    // }
-
-    //TODO:temporary
-    if (categoryId.value == 0) {
-      errorMessages.add("Category is empty");
     }
 
     if (!isDueDateSelected.value) {
@@ -62,7 +78,8 @@ class AddTaskController extends GetxController {
       return;
     }
 
-    Get.offAllNamed(AppRoutes.taskList);
+    taskListController.onRefresh();
+    Get.toNamed(AppRoutes.taskList);
   }
 
   void onDatePickerTap(BuildContext context) {

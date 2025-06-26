@@ -2,7 +2,7 @@ class ApiResponse<T> {
   final bool success;
   final List<String> message;
   final T data;
-  final Map<String, dynamic> session;
+  final bool session;
 
   ApiResponse({
     required this.success,

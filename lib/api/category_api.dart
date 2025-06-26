@@ -11,20 +11,23 @@ class CategoryApi {
   }) async {
     String jsonResponse = "";
     try {
-      final user = Supabase.instance.client.auth.currentUser;
-      if (user == null) {
+      final userAuthResponse = await AuthenticationApi.authenticateUser();
+      if (userAuthResponse == null) {
         jsonResponse = ApiResponseJson.dataSessionResponseHandler(
           success: false,
           message: ["User not authenticated"],
+          session: false,
         );
         return ApiResponse.fromJson(jsonDecode(jsonResponse));
       }
+
+      final userId = userAuthResponse.data.userId;
 
       final response =
           await Supabase.instance.client.from('cw_user_categories').insert({
         'cw_category_name': name,
         'cw_category_color': color,
-        'cw_user_id': user.id,
+        'cw_user_id': userId,
       }).select();
 
       if (response.isEmpty) {
@@ -52,19 +55,31 @@ class CategoryApi {
   static Future<ApiResponse> getUserCategories() async {
     String jsonResponse = "";
     try {
-      final user = Supabase.instance.client.auth.currentUser;
-      if (user == null) {
+      // final user = Supabase.instance.client.auth.currentUser;
+      // if (user == null) {
+      //   jsonResponse = ApiResponseJson.dataSessionResponseHandler(
+      //     success: false,
+      //     message: ["User not authenticated"],
+      //   );
+      //   return ApiResponse.fromJson(jsonDecode(jsonResponse));
+      // }
+
+      final userAuthResponse = await AuthenticationApi.authenticateUser();
+      if (userAuthResponse == null) {
         jsonResponse = ApiResponseJson.dataSessionResponseHandler(
           success: false,
           message: ["User not authenticated"],
+          session: false,
         );
         return ApiResponse.fromJson(jsonDecode(jsonResponse));
       }
 
+      final userId = userAuthResponse.data.userId;
+
       final response = await Supabase.instance.client
           .from('cw_categories')
           .select()
-          .eq('cw_user_id', user.id);
+          .eq('cw_user_id', userId);
 
       jsonResponse = ApiResponseJson.dataSessionResponseHandler(
         success: true,

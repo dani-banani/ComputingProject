@@ -19,19 +19,19 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   Future<void> authenticateUser() async {
-    final isAuthenticated = await AuthenticationApi.authenticateUser();
-    if (!isAuthenticated) {
-      Get.offAndToNamed(AppRoutes.registration);
+    final userAuthResponse = await AuthenticationApi.authenticateUser();
+    if (userAuthResponse == null) {
+      Get.offAllNamed(AppRoutes.registration);
       return;
     }
 
-    Get.offAndToNamed(AppRoutes.home);
+    Get.offAllNamed(AppRoutes.home);
   }
 
   @override
   Widget build(BuildContext context) {
     SchedulerBinding.instance.addPostFrameCallback((_) async{
-      await Future.delayed(const Duration(seconds: 5));
+      await Future.delayed(const Duration(seconds: 2));
       await authenticateUser();
     });
 

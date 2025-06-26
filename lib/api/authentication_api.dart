@@ -6,7 +6,7 @@ import 'api_response_json.dart';
 import '../model/api_response.dart';
 import '../model/user_data.dart';
 
-class AuthenticationApi {  
+class AuthenticationApi {
   // Signup
   static Future<ApiResponse> signUpUser({
     required String email,
@@ -25,7 +25,6 @@ class AuthenticationApi {
           success: true,
           message: ["User registered successfully"],
           data: signUpResponse.user!.toJson(),
-          session: signUpResponse.session?.toJson() ?? {},
         );
 
         return ApiResponse.fromJson(jsonDecode(jsonResponse));
@@ -79,7 +78,7 @@ class AuthenticationApi {
           .eq('cw_user_id', user.id)
           .select();
 
-      if (response.isEmpty) { 
+      if (response.isEmpty) {
         jsonResponse = ApiResponseJson.dataSessionResponseHandler(
           success: false,
           message: ["No profile was updated UID may not exist"],
@@ -103,9 +102,8 @@ class AuthenticationApi {
         success: false,
         message: ["Unexpected error: $e"],
       );
-
     }
-      return ApiResponse.fromJson(jsonDecode(jsonResponse));
+    return ApiResponse.fromJson(jsonDecode(jsonResponse));
   }
 
   // Sign in
@@ -123,7 +121,6 @@ class AuthenticationApi {
           success: true,
           message: ["User logged in successfully"],
           data: signInResponse.user!.toJson(),
-          session: signInResponse.session?.toJson() ?? {},
         );
         return ApiResponse.fromJson(jsonDecode(jsonResponse));
       }
@@ -148,8 +145,29 @@ class AuthenticationApi {
   }
 
   // Authenticate
-  static Future<bool> authenticateUser() async {
-    return Supabase.instance.client.auth.currentSession != null;
+  static Future<ApiResponse<UserData>?> authenticateUser() async {
+    String jsonResponse = "";
+    final session = Supabase.instance.client.auth.currentSession;
+    if (session == null) {
+      jsonResponse = ApiResponseJson.dataSessionResponseHandler(
+        success: false,
+        message: ["Authentication failed. Please sign in again."],
+        session: false,
+      );
+    print("NOT AUTHENTICATED");
+
+      return ApiResponse.fromJson(jsonDecode(jsonResponse));
+    }
+
+    jsonResponse = ApiResponseJson.dataSessionResponseHandler(
+      success: true,
+      message: ["User authenticated successfully"],
+      data: {
+      "uid": session.user.id,
+    });
+
+    print("AUTHENTICATED");
+    return ApiResponse.fromJson(jsonDecode(jsonResponse),fromJson: UserData.fromJson);
   }
 
   // Sign out

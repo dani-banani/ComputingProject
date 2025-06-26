@@ -1,5 +1,6 @@
 import 'package:computing_project/pages/add_task/add_task_controller.dart';
 import 'package:computing_project/widgets/date_picker_widget.dart';
+import 'package:computing_project/widgets/category_selection_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -39,10 +40,21 @@ class AddTaskPage extends GetView<AddTaskController> {
                   TextFieldWidget(
                       colorScheme: colorScheme,
                       hintText: "Task Description",
-                      textController: controller.taskDescriptionController.value,
+                      textController:
+                          controller.taskDescriptionController.value,
                       isTextHidden: false,
                       minLines: 3,
                       maxLines: 5),
+                  const SizedBox(height: 20),
+                  CategorySelectionWidget(
+                      colorScheme: colorScheme,
+                      label: "Select Task Category",
+                      value: controller.selectedCategory.value,
+                      items: controller.categories,
+                      onChanged: (value) {
+                        controller.categoryId.value = value.categoryId;
+                        controller.selectedCategory.value = value.categoryName;
+                      }),
                   const SizedBox(height: 20),
                   Text("Difficulty"),
                   SliderWidget(
@@ -77,7 +89,7 @@ class AddTaskPage extends GetView<AddTaskController> {
                   const SizedBox(height: 40),
                   ButtonWidget(
                       colorScheme: colorScheme,
-                      child: Text("Submit"),
+                      child: const Text("Submit"),
                       onPressed: controller.onAddTask,
                       width: Get.width * 0.4,
                       height: 50)
