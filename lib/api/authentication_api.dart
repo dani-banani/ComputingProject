@@ -147,27 +147,25 @@ class AuthenticationApi {
   // Authenticate
   static Future<ApiResponse<UserData>?> authenticateUser() async {
     String jsonResponse = "";
-    final session = Supabase.instance.client.auth.currentSession;
-    if (session == null) {
+    final valid = await ensureValidSession();
+    if (!valid) {
       jsonResponse = ApiResponseJson.dataSessionResponseHandler(
         success: false,
         message: ["Authentication failed. Please sign in again."],
         session: false,
       );
-    print("NOT AUTHENTICATED");
-
       return ApiResponse.fromJson(jsonDecode(jsonResponse));
     }
 
+    final session = Supabase.instance.client.auth.currentSession!;
     jsonResponse = ApiResponseJson.dataSessionResponseHandler(
       success: true,
       message: ["User authenticated successfully"],
       data: {
-      "uid": session.user.id,
-    });
-
-    print("AUTHENTICATED");
-    return ApiResponse.fromJson(jsonDecode(jsonResponse),fromJson: UserData.fromJson);
+        "uid": session.user.id,
+      },
+    );
+    return ApiResponse.fromJson(jsonDecode(jsonResponse), fromJson: UserData.fromJson);
   }
 
   // Sign out
@@ -194,4 +192,17 @@ class AuthenticationApi {
 
     return ApiResponse.fromJson(jsonDecode(jsonResponse));
   }
+// Ensure valid session
+  static Future<bool> ensureValidSession() async {
+  final auth = Supabase.instance.client.auth;
+  final session = auth.currentSession;
+  final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+  if (session == null || (session.expiresAt != null && session.expiresAt! < now)) {
+    final refreshRes = await auth.refreshSession();
+    if (refreshRes.session == null) {
+      return false;
+    }
+  }
+  return true;
+}
 }
