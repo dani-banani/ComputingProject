@@ -1,13 +1,15 @@
 import 'dart:convert';
+
 import 'package:computing_project/api/api_response_json.dart';
 import 'package:computing_project/api/authentication_api.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../model/api_response.dart';
 
-class CategoryApi {
-  static Future<ApiResponse> createCategory({
-    required String name,
-    required String color,
+class SubTaskApi {
+  static Future<ApiResponse> createSubTask({
+    required int taskId,
+    required String subTaskName,
   }) async {
     String jsonResponse = "";
     try {
@@ -21,115 +23,28 @@ class CategoryApi {
         return ApiResponse.fromJson(jsonDecode(jsonResponse));
       }
 
-      final userId = userAuthResponse.data.userId;
-
-      final response =
-          await Supabase.instance.client.from('cw_user_categories').insert({
-        'cw_category_name': name,
-        'cw_category_color': color,
-        'cw_user_id': userId,
-      }).select();
-
-      if (response.isEmpty) {
-        jsonResponse = ApiResponseJson.dataSessionResponseHandler(
-          success: false,
-          message: ["Create category failed"],
-        );
-        return ApiResponse.fromJson(jsonDecode(jsonResponse));
-      }
-
-      jsonResponse = ApiResponseJson.dataSessionResponseHandler(
-        success: true,
-        message: ["Category created successfully"],
-      );
-      
-    } catch (e) {
-      jsonResponse = ApiResponseJson.dataSessionResponseHandler(
-        success: false,
-        message: ["Unexpected error: $e"],
-      );
-    }
-    return ApiResponse.fromJson(jsonDecode(jsonResponse));
-  }
-
-  static Future<ApiResponse> getUserCategories() async {
-    String jsonResponse = "";
-    try {
-      final userAuthResponse = await AuthenticationApi.authenticateUser();
-      if (userAuthResponse == null) {
-        jsonResponse = ApiResponseJson.dataSessionResponseHandler(
-          success: false,
-          message: ["User not authenticated"],
-          session: false,
-        );
-        return ApiResponse.fromJson(jsonDecode(jsonResponse));
-      }
-
-      final userId = userAuthResponse.data.userId;
-
       final response = await Supabase.instance.client
-          .from('cw_categories')
-          .select()
-          .eq('cw_user_id', userId);
-
-      jsonResponse = ApiResponseJson.dataSessionResponseHandler(
-        success: true,
-        message: ["user categories pulled"],
-        data: {'categories': response},
-      );
-    } catch (e) {
-      jsonResponse = ApiResponseJson.dataSessionResponseHandler(
-        success: false,
-        message: ["Unexpected error: $e"],
-      );
-    }
-    return ApiResponse.fromJson(jsonDecode(jsonResponse));
-  }
-
-  static Future<ApiResponse> editCategory({
-    required int categoryId,
-    required Map<String, dynamic> fieldsToUpdate,
-  }) async {
-    String jsonResponse = "";
-    try {
-      final userAuthResponse = await AuthenticationApi.authenticateUser();
-      if (userAuthResponse == null) {
-        jsonResponse = ApiResponseJson.dataSessionResponseHandler(
-          success: false,
-          message: ["User not authenticated"],
-          session: false,
-        );
-        return ApiResponse.fromJson(jsonDecode(jsonResponse));
-      }
-
-      if (fieldsToUpdate.isEmpty) {
-        jsonResponse = ApiResponseJson.dataSessionResponseHandler(
-          success: false,
-          message: ["No fields to update"],
-        );
-        return ApiResponse.fromJson(jsonlicode(jsonResponse));
-      }
-
-      final response = await Supabase.instance.client
-          .from('cw_user_categories')
-          .update(fieldsToUpdate)
-          .eq('id', categoryId)
+          .from('cw_subtasks')
+          .insert({
+            'cw_task_id': taskId,
+            'cw_task_name': subTaskName,
+          })
           .select();
 
       if (response.isEmpty) {
         jsonResponse = ApiResponseJson.dataSessionResponseHandler(
           success: false,
-          message: ["Edit category failed"],
+          message: ["Create subtask failed"],
         );
         return ApiResponse.fromJson(jsonDecode(jsonResponse));
       }
 
       jsonResponse = ApiResponseJson.dataSessionResponseHandler(
         success: true,
-        message: ["Category updated successfully"],
+        message: ["Subtask created successfully"],
         data: {
-          "categoryId": categoryId,
-          ...fieldsToUpdate,
+          "taskId": taskId,
+          "subTaskName": subTaskName,
         },
       );
     } catch (e) {
@@ -141,8 +56,8 @@ class CategoryApi {
     return ApiResponse.fromJson(jsonDecode(jsonResponse));
   }
 
-  static Future<ApiResponse> deleteCategory({
-    required int categoryId,
+  static Future<ApiResponse> getSubTasksForTask({
+    required int taskId,
   }) async {
     String jsonResponse = "";
     try {
@@ -156,16 +71,97 @@ class CategoryApi {
         return ApiResponse.fromJson(jsonDecode(jsonResponse));
       }
 
-      await Supabase.instance.client
-          .from('cw_user_categories')
-          .delete()
-          .eq('id', categoryId);
+      final response = await Supabase.instance.client
+          .from('cw_subtasks')
+          .select()
+          .eq('cw_task_id', taskId);
 
       jsonResponse = ApiResponseJson.dataSessionResponseHandler(
         success: true,
-        message: ["Category deleted successfully"],
+        message: ["Subtasks fetched successfully"],
+        data: {'subtasks': response},
+      );
+    } catch (e) {
+      jsonResponse = ApiResponseJson.dataSessionResponseHandler(
+        success: false,
+        message: ["Unexpected error: $e"],
+      );
+    }
+    return ApiResponse.fromJson(jsonDecode(jsonResponse));
+  }
+
+  static Future<ApiResponse> editSubTask({
+    required int subTaskId,
+    required String subTaskName,
+  }) async {
+    String jsonResponse = "";
+    try {
+      final userAuthResponse = await AuthenticationApi.authenticateUser();
+      if (userAuthResponse == null) {
+        jsonResponse = ApiResponseJson.dataSessionResponseHandler(
+          success: false,
+          message: ["User not authenticated"],
+          session: false,
+        );
+        return ApiResponse.fromJson(jsonDecode(jsonResponse));
+      }
+
+      final response = await Supabase.instance.client
+          .from('cw_subtasks')
+          .update({'cw_task_name': subTaskName})
+          .eq('cw_subtask_id', subTaskId)
+          .select();
+
+      if (response.isEmpty) {
+        jsonResponse = ApiResponseJson.dataSessionResponseHandler(
+          success: false,
+          message: ["Edit subtask failed"],
+        );
+        return ApiResponse.fromJson(jsonDecode(jsonResponse));
+      }
+
+      jsonResponse = ApiResponseJson.dataSessionResponseHandler(
+        success: true,
+        message: ["Subtask updated successfully"],
         data: {
-          "categoryId": categoryId,
+          "subTaskId": subTaskId,
+          "subTaskName": subTaskName,
+        },
+      );
+    } catch (e) {
+      jsonResponse = ApiResponseJson.dataSessionResponseHandler(
+        success: false,
+        message: ["Unexpected error: $e"],
+      );
+    }
+    return ApiResponse.fromJson(jsonDecode(jsonResponse));
+  }
+
+  static Future<ApiResponse> deleteSubTask({
+    required int subTaskId,
+  }) async {
+    String jsonResponse = "";
+    try {
+      final userAuthResponse = await AuthenticationApi.authenticateUser();
+      if (userAuthResponse == null) {
+        jsonResponse = ApiResponseJson.dataSessionResponseHandler(
+          success: false,
+          message: ["User not authenticated"],
+          session: false,
+        );
+        return ApiResponse.fromJson(jsonDecode(jsonResponse));
+      }
+
+      final response = await Supabase.instance.client
+          .from('cw_subtasks')
+          .delete()
+          .eq('cw_subtask_id', subTaskId);
+
+      jsonResponse = ApiResponseJson.dataSessionResponseHandler(
+        success: true,
+        message: ["Subtask deleted successfully"],
+        data: {
+          "subTaskId": subTaskId,
         },
       );
     } catch (e) {

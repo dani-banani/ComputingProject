@@ -174,4 +174,95 @@ class TaskApi {
     }
     return ApiResponse.fromJson(jsonDecode(jsonResponse),fromJson: TaskList.fromJson);
   }
+
+  static Future<ApiResponse> editTask({
+    required int taskId,
+    required Map<String, dynamic> fieldsToUpdate,
+  }) async {
+    String jsonResponse = "";
+    try {
+      final userAuthResponse = await AuthenticationApi.authenticateUser();
+      if (userAuthResponse == null) {
+        jsonResponse = ApiResponseJson.dataSessionResponseHandler(
+          success: false,
+          message: ["User not authenticated"],
+          session: false,
+        );
+        return ApiResponse.fromJson(jsonDecode(jsonResponse));
+      }
+
+      if (fieldsToUpdate.isEmpty) {
+        jsonResponse = ApiResponseJson.dataSessionResponseHandler(
+          success: false,
+          message: ["No fields to update"],
+        );
+        return ApiResponse.fromJson(jsonDecode(jsonResponse));
+      }
+
+      final response = await Supabase.instance.client
+          .from('cw_user_tasks')
+          .update(fieldsToUpdate)
+          .eq('cw_task_id', taskId)
+          .select();
+
+      if (response.isEmpty) {
+        jsonResponse = ApiResponseJson.dataSessionResponseHandler(
+          success: false,
+          message: ["Edit task failed"],
+        );
+        return ApiResponse.fromJson(jsonDecode(jsonResponse));
+      }
+
+      jsonResponse = ApiResponseJson.dataSessionResponseHandler(
+        success: true,
+        message: ["Task updated successfully"],
+        data: {
+          "taskId": taskId,
+          ...fieldsToUpdate,
+        },
+      );
+    } catch (e) {
+      jsonResponse = ApiResponseJson.dataSessionResponseHandler(
+        success: false,
+        message: ["Unexpected error: $e"],
+      );
+    }
+    return ApiResponse.fromJson(jsonDecode(jsonResponse));
+  }
+
+  static Future<ApiResponse> deleteTask({
+    required int taskId,
+  }) async {
+    String jsonResponse = "";
+    try {
+      final userAuthResponse = await AuthenticationApi.authenticateUser();
+      if (userAuthResponse == null) {
+        jsonResponse = ApiResponseJson.dataSessionResponseHandler(
+          success: false,
+          message: ["User not authenticated"],
+          session: false,
+        );
+        return ApiResponse.fromJson(jsonDecode(jsonResponse));
+      }
+
+      await Supabase.instance.client
+          .from('cw_user_tasks')
+          .delete()
+          .eq('cw_task_id', taskId);
+
+      jsonResponse = ApiResponseJson.dataSessionResponseHandler(
+        success: true,
+        message: ["Task deleted successfully"],
+        data: {
+          "taskId": taskId,
+        },
+      );
+    } catch (e) {
+      jsonResponse = ApiResponseJson.dataSessionResponseHandler(
+        success: false,
+        message: ["Unexpected error: $e"],
+      );
+    }
+    return ApiResponse.fromJson(jsonDecode(jsonResponse));
+  }
 }
