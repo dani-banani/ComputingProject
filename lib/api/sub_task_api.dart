@@ -90,7 +90,7 @@ class SubTaskApi {
 
   static Future<ApiResponse> editSubTask({
     required int subTaskId,
-    required String subTaskName,
+    required Map<String, dynamic> fieldsToUpdate,
   }) async {
     String jsonResponse = "";
     try {
@@ -103,9 +103,17 @@ class SubTaskApi {
         return ApiResponse.fromJson(jsonDecode(jsonResponse));
       }
 
+      if (fieldsToUpdate.isEmpty) {
+        jsonResponse = ApiResponseJson.dataSessionResponseHandler(
+          success: false,
+          message: ["No fields to update"],
+        );
+        return ApiResponse.fromJson(jsonDecode(jsonResponse));
+      }
+
       final response = await Supabase.instance.client
           .from('cw_subtasks')
-          .update({'cw_task_name': subTaskName})
+          .update(fieldsToUpdate)
           .eq('cw_subtask_id', subTaskId)
           .select();
 
@@ -122,7 +130,7 @@ class SubTaskApi {
         message: ["Subtask updated successfully"],
         data: {
           "subTaskId": subTaskId,
-          "subTaskName": subTaskName,
+          ...fieldsToUpdate,
         },
       );
     } catch (e) {
@@ -148,7 +156,7 @@ class SubTaskApi {
         return ApiResponse.fromJson(jsonDecode(jsonResponse));
       }
 
-      final response = await Supabase.instance.client
+      await Supabase.instance.client
           .from('cw_subtasks')
           .delete()
           .eq('cw_subtask_id', subTaskId);
