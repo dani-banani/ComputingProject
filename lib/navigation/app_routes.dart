@@ -1,7 +1,7 @@
 import 'package:computing_project/navigation/app_bindings.dart';
 import 'package:get/get.dart';
 
-import '../pages/smile_page.dart';
+import '../pages/study_method_page.dart';
 import '../pages/home_page/home_page.dart';
 import '../pages/add_task/add_task_page.dart';
 import '../pages/settings/settings_page.dart';
@@ -16,23 +16,20 @@ class AppRoutes {
       page: () => HomePage(colorScheme: Get.theme.colorScheme),
     ),
     GetPage(
-      name: AppRoutes.addTask,
-      page: () => AddTaskPage(colorScheme: Get.theme.colorScheme),
-      binding: AppBindings()
-    ),
+        name: AppRoutes.addTask,
+        page: () => AddTaskPage(colorScheme: Get.theme.colorScheme),
+        binding: AppBindings()),
     GetPage(
-      name: AppRoutes.settings,
-      page: () => SettingsPage(),
-      binding: AppBindings()
-    ),
+        name: AppRoutes.settings,
+        page: () => SettingsPage(),
+        binding: AppBindings()),
     GetPage(
-      name: AppRoutes.taskList,
-      page: () => TaskListPage(colorScheme: Get.theme.colorScheme),
-      binding: AppBindings()
-    ),
+        name: AppRoutes.taskList,
+        page: () => TaskListPage(colorScheme: Get.theme.colorScheme),
+        binding: AppBindings()),
     GetPage(
-      name: AppRoutes.smile,
-      page: () => SmilePage(),
+      name: AppRoutes.studyMethod,
+      page: () => StudyMethodPage(),
     ),
     GetPage(
         name: AppRoutes.registration,
@@ -45,7 +42,7 @@ class AppRoutes {
   static const String addTask = '/pages/random_page.dart';
   static const String settings = '/pages/settings_page.dart';
   static const String taskList = '/pages/task_list/task_list_page.dart';
-  static const String smile = '/pages/smile_page.dart';
+  static const String studyMethod = '/pages/study_method_page.dart';
   static const String registration =
       '/pages/registration/registration_page.dart';
   static const String splash = '/pages/splash_page.dart';

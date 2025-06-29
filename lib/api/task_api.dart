@@ -2,7 +2,8 @@ import 'dart:convert';
 
 import 'package:computing_project/api/api_response_json.dart';
 import 'package:computing_project/api/authentication_api.dart';
-import 'package:computing_project/model/task_list.dart';
+import 'package:computing_project/model/category.dart';
+import 'package:computing_project/model/task.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../model/api_response.dart';
@@ -21,16 +22,15 @@ class TaskApi {
     String jsonResponse = "";
     try {
       final userAuthResponse = await AuthenticationApi.authenticateUser();
-      if (userAuthResponse == null) {
+      if (!userAuthResponse.success) {
         jsonResponse = ApiResponseJson.dataSessionResponseHandler(
           success: false,
-          message: ["User not authenticated"],
-          session: false,
+          statusCode: 401,
         );
         return ApiResponse.fromJson(jsonDecode(jsonResponse));
       }
 
-      final userId = userAuthResponse.data.userId;
+      final userId = userAuthResponse.data['userId'];
 
       final response =
           await Supabase.instance.client.from('cw_user_tasks').insert({
@@ -78,54 +78,20 @@ class TaskApi {
     return ApiResponse.fromJson(jsonDecode(jsonResponse));
   }
 
-  static Future<ApiResponse> getUserTasks() async {
+  static Future<ApiResponse<List<Category>?>>
+      getUserTasksWithCategories() async {
     String jsonResponse = "";
     try {
       final userAuthResponse = await AuthenticationApi.authenticateUser();
-      if (userAuthResponse == null) {
+      if (!userAuthResponse.success) {
         jsonResponse = ApiResponseJson.dataSessionResponseHandler(
           success: false,
-          message: ["User not authenticated"],
-          session: false,
+          statusCode: 401,
         );
         return ApiResponse.fromJson(jsonDecode(jsonResponse));
       }
 
-      final userId = userAuthResponse.data.userId;
-
-      final response = await Supabase.instance.client
-          .from('cw_user_tasks')
-          .select()
-          .eq('cw_user_id', userId);
-
-      jsonResponse = ApiResponseJson.dataSessionResponseHandler(
-        success: true,
-        message: ["user tasks pulled"],
-        data: {'tasks': response},
-      );
-    } catch (e) {
-      jsonResponse = ApiResponseJson.dataSessionResponseHandler(
-        success: false,
-        message: ["Unexpected error: $e"],
-      );
-    }
-    return ApiResponse.fromJson(jsonDecode(jsonResponse));
-  }
-
-  static Future<ApiResponse<TaskList>> getUserCategoriesWithTasks() async {
-    String jsonResponse = "";
-    try {
-      final userAuthResponse = await AuthenticationApi.authenticateUser();
-      if (userAuthResponse == null) {
-        jsonResponse = ApiResponseJson.dataSessionResponseHandler(
-          success: false,
-          message: ["User not authenticated"],
-          session: false,
-        );
-        return ApiResponse.fromJson(jsonDecode(jsonResponse));
-      }
-
-      final userId = userAuthResponse.data.userId;
+      final userId = userAuthResponse.data['userId'];
 
       final categories = await Supabase.instance.client
           .from('cw_user_categories')
@@ -141,38 +107,48 @@ class TaskApi {
       tasks.sort(
           (a, b) => (a['cw_task_id'] as int).compareTo(b['cw_task_id'] as int));
 
-      final Map<int, List<dynamic>> tasksByCategory = {};
+      final Map<int, List<dynamic>> groupedTasks = {
+        0: [],
+      };
 
-      for (final task in tasks) {
-        final categoryId = task['cw_category_id'];
-        tasksByCategory.putIfAbsent(categoryId, () => []).add(task);
-      }
+      categories.forEach((category) {
+        groupedTasks.putIfAbsent(category['cw_category_id'], () => []);
+      });
 
-      final List<Map<String, dynamic>> categoriesWithTasks = [];
+      tasks.forEach((task) {
+        if (groupedTasks.containsKey(task['cw_category_id'])) {
+          groupedTasks[task['cw_category_id']]?.add(task);
+        } else {
+          groupedTasks[0]!.add(task);
+        }
+      });
+
+      final List<Map<String, dynamic>> categoryList = [];
       for (final category in categories) {
         final categoryId = category['cw_category_id'];
-        categoriesWithTasks.add({
+        categoryList.add({
           ...category,
-          'tasks': tasksByCategory[categoryId] ?? [],
+          'tasks': groupedTasks[categoryId] ?? [],
         });
       }
 
       jsonResponse = ApiResponseJson.dataSessionResponseHandler(
         success: true,
-        message: ["user task and categories pulled"],
         data: {
-          'taskList': categoriesWithTasks,
+          'categories': categoryList,
         },
       );
 
-
+      return ApiResponse.fromJson(jsonDecode(jsonResponse),
+          fromJson: (json) => List<Category>.from(
+              json['categories'].map((item) => Category.fromJson(item))));
     } catch (e) {
       jsonResponse = ApiResponseJson.dataSessionResponseHandler(
         success: false,
         message: ["Unexpected error: $e"],
       );
+      return ApiResponse.fromJson(jsonDecode(jsonResponse));
     }
-    return ApiResponse.fromJson(jsonDecode(jsonResponse),fromJson: TaskList.fromJson);
   }
 
   static Future<ApiResponse> editTask({
@@ -182,11 +158,10 @@ class TaskApi {
     String jsonResponse = "";
     try {
       final userAuthResponse = await AuthenticationApi.authenticateUser();
-      if (userAuthResponse == null) {
+      if (!userAuthResponse.success) {
         jsonResponse = ApiResponseJson.dataSessionResponseHandler(
           success: false,
-          message: ["User not authenticated"],
-          session: false,
+          statusCode: 401,
         );
         return ApiResponse.fromJson(jsonDecode(jsonResponse));
       }
@@ -236,11 +211,10 @@ class TaskApi {
     String jsonResponse = "";
     try {
       final userAuthResponse = await AuthenticationApi.authenticateUser();
-      if (userAuthResponse == null) {
+      if (!userAuthResponse.success) {
         jsonResponse = ApiResponseJson.dataSessionResponseHandler(
           success: false,
-          message: ["User not authenticated"],
-          session: false,
+          statusCode: 401,
         );
         return ApiResponse.fromJson(jsonDecode(jsonResponse));
       }

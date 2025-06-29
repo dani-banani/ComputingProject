@@ -16,7 +16,7 @@ class _FooterNavbarWidgetState extends State<FooterNavbarWidget> {
   Color baseColor = const Color.fromARGB(255, 0, 126, 32);
   List<NavbarItem> navbarItems = [
     NavbarItem("Home", Icons.home, AppRoutes.home),
-    NavbarItem("Smile", Icons.face, AppRoutes.smile),
+    NavbarItem("Study", Icons.face, AppRoutes.studyMethod),
     NavbarItem("Add Task", Icons.add, AppRoutes.addTask),
     NavbarItem("Task List", Icons.done_all_rounded, AppRoutes.taskList),
     NavbarItem("Settings", Icons.settings, AppRoutes.settings),

@@ -19,14 +19,13 @@ class _TextFieldState extends State<TextFieldWidget> {
     return TextField(
       cursorColor: widget.colorScheme.onPrimaryContainer,
       style: TextStyle(color: widget.colorScheme.onPrimaryContainer, fontSize: 16),
-
       decoration: InputDecoration(
         filled: true,
         fillColor: widget.colorScheme.primaryContainer,
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         labelText: widget.hintText,
         alignLabelWithHint: true,
-        labelStyle: TextStyle(color: widget.colorScheme.onPrimaryContainer,fontWeight: FontWeight.bold),
+        labelStyle: TextStyle(color: widget.colorScheme.onPrimaryContainer,fontWeight: FontWeight.bold, fontSize: 16),
         focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide(width: 1, color: widget.colorScheme.onPrimaryContainer)),

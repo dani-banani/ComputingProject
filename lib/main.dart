@@ -30,7 +30,10 @@ class _MainAppState extends State<MainApp> {
 
   final List<String> noFooterRoutes = [
     AppRoutes.registration,
-    AppRoutes.splash
+    AppRoutes.splash,
+    AppRoutes.studyMethod,
+    AppRoutes.taskList,
+    AppRoutes.home
   ];
 
   @override

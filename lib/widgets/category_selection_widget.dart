@@ -1,19 +1,16 @@
+import 'package:computing_project/api/category_api.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:computing_project/model/task_list.dart';
+import 'package:computing_project/model/category.dart';
 
 class CategorySelectionWidget extends StatefulWidget {
-  final ColorScheme colorScheme;
-  final List<ListItem> items;
   final String label;
-  final String value;
-  final Function(ListItem) onChanged;
+  final int? defaultCategoryId;
+  final Function(Category) onChanged;
   const CategorySelectionWidget(
       {super.key,
-      required this.colorScheme,
-      required this.items,
       required this.label,
-      required this.value,
+      this.defaultCategoryId,
       required this.onChanged});
 
   @override
@@ -22,43 +19,57 @@ class CategorySelectionWidget extends StatefulWidget {
 }
 
 class _CategorySelectionWidgetState extends State<CategorySelectionWidget> {
+  final ColorScheme colorScheme = Get.theme.colorScheme;
+  List<Category> categoryList = [];
+  Category? selectedCategory;
+
+  @override
+  void initState() {
+    super.initState();
+    CategoryApi.getUserCategories().then((response) {
+      if (response.success) {
+        setState(() {
+          categoryList = response.data;
+          if (widget.defaultCategoryId != null) {
+            selectedCategory = categoryList.firstWhereOrNull(
+                (category) => category.categoryId == widget.defaultCategoryId);
+          }
+        });
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        showPopoverSelection(context, widget.colorScheme);
+        showPopoverSelection(context);
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          color: widget.colorScheme.primaryContainer,
+          color: selectedCategory != null
+              ? selectedCategory!
+                  .getCategoryColor(defaultColor: colorScheme.primaryContainer)
+              : colorScheme.primaryContainer,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                // Container(
-                //   width: 20,
-                //   height: 20,
-                //   decoration: BoxDecoration(
-                //     borderRadius: BorderRadius.circular(10),
-                //   ),
-                // ),
-                // const SizedBox(width: 10),
-                Text(
-                  widget.value.isEmpty ? widget.label : widget.value,
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: widget.colorScheme.onPrimaryContainer),
-                ),
-              ],
+            Flexible(
+              child: Text(
+                selectedCategory?.categoryName ?? widget.label,
+                softWrap: true,
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onPrimaryContainer),
+              ),
             ),
             Icon(
               Icons.arrow_drop_down,
-              color: widget.colorScheme.onPrimaryContainer,
+              color: colorScheme.onPrimaryContainer,
             ),
           ],
         ),
@@ -66,13 +77,13 @@ class _CategorySelectionWidgetState extends State<CategorySelectionWidget> {
     );
   }
 
-  void showPopoverSelection(BuildContext context, ColorScheme colorScheme) {
+  void showPopoverSelection(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        contentPadding: EdgeInsets.all(20),
+        contentPadding: const EdgeInsets.all(20),
         actionsPadding:
-            EdgeInsets.only(bottom: 20, right: 20, left: 20, top: 0),
+            const EdgeInsets.only(bottom: 20, right: 20, left: 20, top: 0),
         clipBehavior: Clip.hardEdge,
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -97,20 +108,25 @@ class _CategorySelectionWidgetState extends State<CategorySelectionWidget> {
               width: double.maxFinite,
               height: 200,
               child: ListView.separated(
-                physics: const AlwaysScrollableScrollPhysics().applyTo(const BouncingScrollPhysics()),
-                itemCount: widget.items.length,
+                physics: const AlwaysScrollableScrollPhysics()
+                    .applyTo(const BouncingScrollPhysics()),
+                itemCount: categoryList.length,
                 itemBuilder: (context, index) {
-                  final currentItem = widget.items[index];
+                  final currentItem = categoryList[index];
                   return GestureDetector(
                     onTap: () {
                       widget.onChanged(currentItem);
+                      setState(() {
+                        selectedCategory = currentItem;
+                      });
                       Get.back();
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20, vertical: 10),
                       decoration: BoxDecoration(
-                        color: currentItem.categoryColor.isNotEmpty ? Color(int.parse(currentItem.categoryColor)) : colorScheme.primaryContainer,
+                        color: currentItem.getCategoryColor(
+                            defaultColor: colorScheme.primaryContainer),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(currentItem.categoryName),

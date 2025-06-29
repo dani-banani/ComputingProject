@@ -1,15 +1,11 @@
 import 'package:computing_project/navigation/app_routes.dart';
-import 'package:computing_project/pages/add_task/add_task_controller.dart';
 import 'package:computing_project/pages/home_page/home_controller.dart';
 import 'package:computing_project/widgets/error_snackbar_widget.dart';
-import 'package:computing_project/widgets/button_widget.dart';
-import 'package:computing_project/widgets/text_field_widget.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:computing_project/model/task_list.dart';
-import 'package:computing_project/model/api_response.dart';
 import 'package:computing_project/api/category_api.dart';
 import 'package:computing_project/api/task_api.dart';
+import 'package:computing_project/model/category.dart';
 
 class ColorSelection {
   final Color color;
@@ -19,10 +15,10 @@ class ColorSelection {
 }
 
 class AccordionItem {
-  final ListItem listItem;
+  final Category category;
   bool isExpanded;
 
-  AccordionItem({required this.listItem, required this.isExpanded});
+  AccordionItem({required this.category, required this.isExpanded});
 }
 
 class TaskListController extends GetxController {
@@ -56,20 +52,64 @@ class TaskListController extends GetxController {
   }
 
   void onRefresh() async {
-    final response = await TaskApi.getUserCategoriesWithTasks();  
+    final response = await TaskApi.getUserTasksWithCategories();
     if (!response.success) {
-      ErrorSnackbarWidget.showSnackbar(title: "Error", messages: response.message);
+      ErrorSnackbarWidget.showSnackbar(
+          title: "Error", messages: response.message);
       return;
     }
 
-    taskAccordions.value = response.data.listItems
-        .map((item) => AccordionItem(listItem: item, isExpanded: false))
+    taskAccordions.value = response.data!
+        .map((item) => AccordionItem(category: item, isExpanded: false))
         .toList();
+
+    taskAccordions.refresh();
   }
 
   void onAddTask() async {
     Get.toNamed(AppRoutes.addTask);
     return;
+  }
+
+  void onColorSelected(int index, Color color) {
+    if (index == selectedColorIndex.value) {
+      selectedColorIndex.value = -1;
+      selectedColor = "";
+      return;
+    }
+
+    selectedColorIndex.value = index;
+    selectedColor =
+        color.toARGB32().toRadixString(16).padLeft(9, '0x').toUpperCase();
+  }
+
+  void editCategory(Category category) async{
+    List<String> errors = [];
+
+    if (categoryNameController.value.text.isEmpty) {
+      errors.add("Category name is required");
+    }
+
+    if (errors.isNotEmpty) {
+      ErrorSnackbarWidget.showSnackbar(title: "Error", messages: errors);
+      return;
+    }
+
+    final response = await CategoryApi.editCategory(
+      categoryId: category.categoryId,
+      fieldsToUpdate: {
+        "cw_category_name": categoryNameController.value.text,
+        "cw_category_color": selectedColor,
+      },
+    );
+
+    if (!response.success) {
+      ErrorSnackbarWidget.showSnackbar(title: "Error", messages: response.message);
+      return;
+    }
+
+    onRefresh();
+    Get.back();
   }
 
   void addCategory() async {
@@ -90,7 +130,7 @@ class TaskListController extends GetxController {
     );
 
     if (!response.success) {
-      if (!response.session) {
+      if (response.statusCode == 401) {
         Get.offAllNamed(AppRoutes.registration);
         ErrorSnackbarWidget.showSnackbar(
             title: "Error", messages: response.message);
@@ -105,7 +145,20 @@ class TaskListController extends GetxController {
     Get.back();
   }
 
-  void togglePanel(int index) {
+  void deleteCategory(Category category) async {
+    print("DELETING CATEGORY: ${category.categoryId}");
+
+    final response = await CategoryApi.deleteCategory(categoryId: category.categoryId);
+    if (!response.success) {
+      ErrorSnackbarWidget.showSnackbar(title: "Error", messages: response.message);
+      return;
+    }
+
+    onRefresh();
+    Get.back();
+  }
+
+  void toggleAccordian(int index) {
     taskAccordions[index].isExpanded = !taskAccordions[index].isExpanded;
     taskAccordions.refresh();
   }

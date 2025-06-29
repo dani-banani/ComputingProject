@@ -12,6 +12,7 @@ dependencies:
   fluttertoast: ^8.2.12
   get: ^4.7.2
   intl: ^0.20.2
+  one_clock: ^2.0.2
   supabase_flutter: ^2.8.4
 
 dev_dependencies:

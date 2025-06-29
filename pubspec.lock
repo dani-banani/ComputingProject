@@ -272,6 +272,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
+  one_clock:
+    dependency: "direct main"
+    description:
+      name: one_clock
+      sha256: "8a3aa0e36016c33c7d3be2db50f3f2a8799dcf589e747c02107277fffce937f3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.2"
   path:
     dependency: transitive
     description:

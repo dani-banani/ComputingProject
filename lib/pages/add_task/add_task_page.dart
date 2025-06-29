@@ -7,12 +7,19 @@ import 'package:get/get.dart';
 import 'package:computing_project/widgets/text_field_widget.dart';
 import 'package:computing_project/widgets/slider_widget.dart';
 import 'package:computing_project/widgets/button_widget.dart';
+import 'package:computing_project/model/category.dart';
 
 class AddTaskPage extends GetView<AddTaskController> {
   final ColorScheme colorScheme;
   const AddTaskPage({super.key, required this.colorScheme});
 
   Widget build(BuildContext context) {
+    final Map<String, dynamic>? arguments = Get.arguments;
+    final Category? defaultCategory = arguments?["category"];
+    if (defaultCategory != null) {
+      controller.onCategoryChange(defaultCategory);
+    }
+
     return SafeArea(
       child: LayoutBuilder(builder: (context, constraints) {
         return Obx(() {
@@ -47,14 +54,11 @@ class AddTaskPage extends GetView<AddTaskController> {
                       maxLines: 5),
                   const SizedBox(height: 20),
                   CategorySelectionWidget(
-                      colorScheme: colorScheme,
                       label: "Select Task Category",
-                      value: controller.selectedCategory.value,
-                      items: controller.categories,
                       onChanged: (value) {
-                        controller.categoryId.value = value.categoryId;
-                        controller.selectedCategory.value = value.categoryName;
-                      }),
+                        controller.onCategoryChange(value);
+                      },
+                      defaultCategoryId: defaultCategory?.categoryId),
                   const SizedBox(height: 20),
                   Text("Difficulty"),
                   SliderWidget(

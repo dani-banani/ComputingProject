@@ -1,14 +1,15 @@
 import 'package:computing_project/api/task_api.dart';
-import 'package:computing_project/model/task_list.dart';
+import 'package:computing_project/model/task.dart';
 import 'package:computing_project/pages/home_page/home_controller.dart';
 import 'package:computing_project/pages/task_list/task_list_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:computing_project/api/authentication_api.dart';
-
-import '../../model/user_data.dart';
 import '../../navigation/app_routes.dart';
+
+import '../../model/category.dart';
 import '../../widgets/error_snackbar_widget.dart';
+
 
 class AddTaskController extends GetxController {
   HomeController homeController = Get.find();
@@ -24,24 +25,39 @@ class AddTaskController extends GetxController {
   Rx<int> reminderFrequency = 0.obs;
   Rx<int> categoryId = 0.obs;
   Rx<bool> isDueDateSelected = false.obs;
-  Rx<String> selectedCategory = "".obs;
+  Rx<String> categoryName = "".obs;
 
-  RxList<ListItem> categories = <ListItem>[].obs;
+  RxList<Category> categories = <Category>[].obs;
 
   @override
   void onInit() async {
     super.onInit();
-    onRefresh();
+    onReload();
   }
 
-  void onRefresh() async {
-    final response = await TaskApi.getUserCategoriesWithTasks();
+  void onReload() async {
+    final response = await TaskApi.getUserTasksWithCategories();
     if (!response.success) {
-      ErrorSnackbarWidget.showSnackbar(title: "Error", messages: response.message);
+      if (response.statusCode == 401) {
+        Get.offAllNamed(AppRoutes.registration);
+        return;
+      }
+
+      ErrorSnackbarWidget.showSnackbar(
+          title: "Error", messages: response.message);
       return;
     }
 
-    categories.value = response.data.listItems;
+    categories.value = response.data!;
+  }
+
+  void onCategoryChange(Category selectedCategory) {
+    if (selectedCategory.categoryId == categoryId.value) {
+      return;
+    }
+
+    categoryId.value = selectedCategory.categoryId;
+    categoryName.value = selectedCategory.categoryName;
   }
 
   void onAddTask() async {

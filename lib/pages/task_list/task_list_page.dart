@@ -1,9 +1,12 @@
-import 'package:computing_project/model/task_list.dart';
+import 'package:computing_project/model/task.dart';
 import 'package:computing_project/pages/task_list/task_list_controller.dart';
 import 'package:computing_project/widgets/text_field_widget.dart';
 import 'package:get/get.dart';
+
 import 'package:computing_project/widgets/button_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:computing_project/model/category.dart';
+import '../../navigation/app_routes.dart';
 
 class TaskListPage extends GetView<TaskListController> {
   final ColorScheme colorScheme;
@@ -38,7 +41,8 @@ class TaskListPage extends GetView<TaskListController> {
                         ),
                         ButtonWidget(
                           colorScheme: colorScheme,
-                          onPressed: () => showAddCategoryDialog(constraints),
+                          onPressed: () =>
+                              showAddCategoryDialog(context, constraints),
                           width: constraints.maxWidth * 0.45,
                           child: const Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -60,7 +64,8 @@ class TaskListPage extends GetView<TaskListController> {
                         "Task List",
                         style: TextStyle(
                             color: colorScheme.onPrimary,
-                            fontWeight: FontWeight.bold),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16),
                       ),
                     ),
                     ExpansionPanelList(
@@ -69,64 +74,118 @@ class TaskListPage extends GetView<TaskListController> {
                       dividerColor: Colors.transparent,
                       expandIconColor: colorScheme.onSecondary,
                       expansionCallback: (panelIndex, isExpanded) {
-                        if (controller.taskAccordions[panelIndex].listItem.tasks
-                            .isNotEmpty) {
-                          controller.togglePanel(panelIndex);
-                        }
+                        controller.toggleAccordian(panelIndex);
                       },
-                      children: controller.taskAccordions
-                          .map(
-                            (taskList) => ExpansionPanel(
-                              canTapOnHeader: true,
-                              backgroundColor: colorScheme.secondary,
-                              headerBuilder: (context, isExpanded) {
-                                return ListTile(
-                                  title: Text(
-                                    taskList.listItem.categoryName,
-                                    style: TextStyle(
-                                        color: colorScheme.onSecondary),
-                                  ),
-                                  leading: Container(
-                                    width: 20,
-                                    height: 20,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      color: taskList
-                                              .listItem.categoryColor.isEmpty
-                                          ? colorScheme.onSecondary
-                                          : Color(int.parse(
-                                              taskList.listItem.categoryColor)),
+                      children: controller.taskAccordions.map((taskAccordion) {
+                        return ExpansionPanel(
+                          canTapOnHeader: true,
+                          backgroundColor: colorScheme.secondary,
+                          headerBuilder: (context, isExpanded) {
+                            return ListTile(
+                              title: Text(
+                                taskAccordion.category.categoryName,
+                                style:
+                                    TextStyle(color: colorScheme.onSecondary),
+                              ),
+                              leading: taskAccordion.category
+                                      .isCategoryColored()
+                                  ? Container(
+                                      width: 20,
+                                      height: 20,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: taskAccordion.category
+                                            .getCategoryColor(),
+                                      ),
+                                    )
+                                  : null,
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    width: 32,
+                                    child: IconButton(
+                                      onPressed: () {
+                                        showAddCategoryDialog(
+                                            context, constraints,
+                                            defaultCategory:
+                                                taskAccordion.category);
+                                      },
+                                      icon: Icon(Icons.edit),
+                                      constraints: BoxConstraints(),
+                                      iconSize: 16,
+                                      style: IconButton.styleFrom(
+                                        foregroundColor:
+                                            colorScheme.onSecondary,
+                                      ),
                                     ),
                                   ),
-                                );
-                              },
-                              body: Column(
-                                children: [
-                                  ...taskList.listItem.tasks
-                                      .map((task) => ListTile(
-                                            onTap: () {
-                                              showTaskDetailModal(
-                                                  context,
-                                                  constraints,
-                                                  colorScheme,
-                                                  taskList.listItem,
-                                                  task);
-                                            },
-                                            title: Text(
-                                              task.taskName,
-                                              style: TextStyle(
-                                                  color: colorScheme
-                                                      .onPrimaryContainer),
-                                            ),
-                                            tileColor:
-                                                colorScheme.primaryContainer,
-                                          )),
+                                  Container(
+                                    width: 32,
+                                    child: IconButton(
+                                      onPressed: () {
+                                        Get.toNamed(AppRoutes.addTask,
+                                            arguments: {
+                                              "category": taskAccordion
+                                                  .category,
+                                            });
+                                      },
+                                      icon: Icon(Icons.add),
+                                      iconSize: 16,
+                                      constraints: BoxConstraints(),
+                                      style: IconButton.styleFrom(
+                                        foregroundColor:
+                                            colorScheme.onSecondary,
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 32,
+                                    child: IconButton(
+                                      onPressed: () {
+                                        showDeleteCategoryDialog(
+                                            context, constraints,
+                                            taskAccordion.category);
+                                      },
+                                      icon: Icon(Icons.delete),
+                                      constraints: BoxConstraints(),
+                                      iconSize: 16,
+                                      style: IconButton.styleFrom(
+                                        foregroundColor:
+                                            colorScheme.onSecondary,
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               ),
-                              isExpanded: taskList.isExpanded,
-                            ),
-                          )
-                          .toList(),
+                            );
+                          },
+                          body: Column(
+                            children: [
+                              ...taskAccordion.category.tasks
+                                  .map((task) => ListTile(
+                                        onTap: () {
+                                          showTaskDetailModal(
+                                              context,
+                                              constraints,
+                                              colorScheme,
+                                              taskAccordion.category,
+                                              task);
+                                        },
+                                        title: Text(
+                                          task.taskName,
+                                          style: TextStyle(
+                                              color: colorScheme
+                                                  .onPrimaryContainer),
+                                        ),
+                                        tileColor: colorScheme.primaryContainer,
+                                      )),
+                            ],
+                          ),
+                          isExpanded: taskAccordion.isExpanded,
+                        );
+                      }).toList(),
                     ),
                   ],
                 ),
@@ -138,9 +197,23 @@ class TaskListPage extends GetView<TaskListController> {
     );
   }
 
-  void showAddCategoryDialog(BoxConstraints constraints) {
+  void showAddCategoryDialog(BuildContext context, BoxConstraints constraints,
+      {Category? defaultCategory}) {
+    if (defaultCategory != null) {
+      controller.categoryNameController.value.text =
+          defaultCategory.categoryName;
+      controller.selectedColorIndex.value =
+          controller.colorOptions.indexOf(defaultCategory.getCategoryColor());
+      controller.selectedColor = defaultCategory
+          .getCategoryColor()
+          .toARGB32()
+          .toRadixString(16)
+          .padLeft(9, '0x')
+          .toUpperCase();
+    }
+
     showDialog(
-      context: Get.context!,
+      context: context,
       builder: (context) => Obx(
         () => AlertDialog(
           contentPadding: EdgeInsets.all(20),
@@ -150,18 +223,30 @@ class TaskListPage extends GetView<TaskListController> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+              Stack(
+                alignment: Alignment.center,
                 children: [
-                  IconButton(
-                      onPressed: () {
-                        Get.back();
-                      },
-                      icon: Icon(
-                        Icons.close,
-                        size: 20,
-                        color: colorScheme.onSurface,
-                      )),
+                  Text(
+                    defaultCategory != null ? "Edit Category" : "Add Category",
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.onSurface),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                          onPressed: () {
+                            Get.back();
+                          },
+                          icon: Icon(
+                            Icons.close,
+                            size: 20,
+                            color: colorScheme.onSurface,
+                          )),
+                    ],
+                  ),
                 ],
               ),
               const SizedBox(height: 20),
@@ -179,9 +264,14 @@ class TaskListPage extends GetView<TaskListController> {
             ButtonWidget(
               colorScheme: colorScheme,
               onPressed: () {
-                controller.addCategory();
+                if (defaultCategory != null) {
+                  controller.editCategory(defaultCategory);
+                } else {
+                  controller.addCategory();
+                }
               },
-              child: Text("Add Category"),
+              child: Text(
+                  defaultCategory != null ? "Edit Category" : "Add Category"),
             ),
           ],
         ),
@@ -201,16 +291,12 @@ class TaskListPage extends GetView<TaskListController> {
         mainAxisSpacing: 10,
         crossAxisSpacing: 10,
         childAspectRatio: 2.0,
-        children: controller.colorOptions.map((color) {
+        children: controller.colorOptions.asMap().entries.map((entry) {
+          final color = entry.value;
+          final index = entry.key;
           return GestureDetector(
             onTap: () {
-              controller.selectedColorIndex.value =
-                  controller.colorOptions.indexOf(color);
-              controller.selectedColor = color
-                  .toARGB32()
-                  .toRadixString(16)
-                  .padLeft(9, '0x')
-                  .toUpperCase();
+              controller.onColorSelected(index, color);
             },
             child: Stack(
               children: [
@@ -220,8 +306,7 @@ class TaskListPage extends GetView<TaskListController> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                if (controller.selectedColorIndex.value ==
-                    controller.colorOptions.indexOf(color))
+                if (index == controller.selectedColorIndex.value)
                   Align(
                     alignment: Alignment.center,
                     child: Icon(
@@ -239,8 +324,65 @@ class TaskListPage extends GetView<TaskListController> {
     );
   }
 
-    void showTaskDetailModal(BuildContext context, BoxConstraints constraints,
-      ColorScheme colorScheme, ListItem listItem, TaskItem task) {
+  void showDeleteCategoryDialog(
+      BuildContext context, BoxConstraints constraints, Category category) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+          contentPadding: EdgeInsets.all(20),
+          actionsPadding:
+              EdgeInsets.only(bottom: 20, right: 20, left: 20, top: 0),
+          clipBehavior: Clip.hardEdge,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  Text(
+                    "Delete Category",
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.onSurface),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                          onPressed: () {
+                            Get.back();
+                          },
+                          icon: Icon(
+                            Icons.close,
+                            size: 20,
+                            color: colorScheme.onSurface,
+                          )),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Text("Are you sure you want to delete ${category.categoryName}? This action cannot be undone.", textAlign: TextAlign.center, style: TextStyle(color: colorScheme.onSurface, fontSize: 14),),
+              const SizedBox(height: 20),
+            ],
+          ),
+          actions: [
+            ButtonWidget(
+              colorScheme: colorScheme,
+              onPressed: () {
+                controller.deleteCategory(category);
+              },
+              child: Text(
+                  "Delete Category"),
+            ),
+          ],
+        ),
+      );
+  }
+
+  void showTaskDetailModal(BuildContext context, BoxConstraints constraints,
+      ColorScheme colorScheme, Category listItem, Task task) {
     showModalBottomSheet(
       isScrollControlled: true,
       useSafeArea: true,

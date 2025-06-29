@@ -14,11 +14,10 @@ class SubTaskApi {
     String jsonResponse = "";
     try {
       final userAuthResponse = await AuthenticationApi.authenticateUser();
-      if (userAuthResponse == null) {
+      if (!userAuthResponse.success) {
         jsonResponse = ApiResponseJson.dataSessionResponseHandler(
           success: false,
-          message: ["User not authenticated"],
-          session: false,
+          statusCode: 401,
         );
         return ApiResponse.fromJson(jsonDecode(jsonResponse));
       }
@@ -62,11 +61,10 @@ class SubTaskApi {
     String jsonResponse = "";
     try {
       final userAuthResponse = await AuthenticationApi.authenticateUser();
-      if (userAuthResponse == null) {
+      if (!userAuthResponse.success) {
         jsonResponse = ApiResponseJson.dataSessionResponseHandler(
           success: false,
-          message: ["User not authenticated"],
-          session: false,
+          statusCode: 401,
         );
         return ApiResponse.fromJson(jsonDecode(jsonResponse));
       }
@@ -97,11 +95,10 @@ class SubTaskApi {
     String jsonResponse = "";
     try {
       final userAuthResponse = await AuthenticationApi.authenticateUser();
-      if (userAuthResponse == null) {
+      if (!userAuthResponse.success) {
         jsonResponse = ApiResponseJson.dataSessionResponseHandler(
           success: false,
-          message: ["User not authenticated"],
-          session: false,
+          statusCode: 401,
         );
         return ApiResponse.fromJson(jsonDecode(jsonResponse));
       }
@@ -143,11 +140,10 @@ class SubTaskApi {
     String jsonResponse = "";
     try {
       final userAuthResponse = await AuthenticationApi.authenticateUser();
-      if (userAuthResponse == null) {
+      if (!userAuthResponse.success) {
         jsonResponse = ApiResponseJson.dataSessionResponseHandler(
           success: false,
-          message: ["User not authenticated"],
-          session: false,
+          statusCode: 401,
         );
         return ApiResponse.fromJson(jsonDecode(jsonResponse));
       }

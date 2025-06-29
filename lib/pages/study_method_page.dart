@@ -3,14 +3,14 @@ import 'package:get/get.dart';
 
 import '../navigation/app_routes.dart';
 
-class SmilePage extends StatefulWidget {
-  const SmilePage({super.key});
+class StudyMethodPage extends StatefulWidget {
+  const StudyMethodPage({super.key});
 
   @override
-  State<SmilePage> createState() => _SmilePageState();
+  State<StudyMethodPage> createState() => _StudyMethodPageState();
 }
 
-class _SmilePageState extends State<SmilePage> {
+class _StudyMethodPageState extends State<StudyMethodPage> {
   @override
   Widget build(BuildContext context) {
     return Container(
