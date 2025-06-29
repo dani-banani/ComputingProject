@@ -1,2 +1,0 @@
-C:/Users/hansk/OneDrive/Desktop/Computer Science/Diploma Computing Project/computing_project/android/app/.cxx/Debug/6ku4w4y1/x86_64/CMakeFiles/edit_cache.dir
-C:/Users/hansk/OneDrive/Desktop/Computer Science/Diploma Computing Project/computing_project/android/app/.cxx/Debug/6ku4w4y1/x86_64/CMakeFiles/rebuild_cache.dir

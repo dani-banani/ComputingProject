@@ -1,2 +1,0 @@
-C:/Users/hansk/OneDrive/Desktop/Diploma In IT/Sem 5/Diploma Computing Project/computing_project/android/app/.cxx/Debug/5t1t5r92/armeabi-v7a/CMakeFiles/edit_cache.dir
-C:/Users/hansk/OneDrive/Desktop/Diploma In IT/Sem 5/Diploma Computing Project/computing_project/android/app/.cxx/Debug/5t1t5r92/armeabi-v7a/CMakeFiles/rebuild_cache.dir
