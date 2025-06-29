@@ -27,6 +27,7 @@ class SubTaskApi {
           .insert({
             'cw_task_id': taskId,
             'cw_task_name': subTaskName,
+            'cw_task_completion_status': false,
           })
           .select();
 
@@ -54,40 +55,6 @@ class SubTaskApi {
     }
     return ApiResponse.fromJson(jsonDecode(jsonResponse));
   }
-
-  static Future<ApiResponse> getSubTasksForTask({
-    required int taskId,
-  }) async {
-    String jsonResponse = "";
-    try {
-      final userAuthResponse = await AuthenticationApi.authenticateUser();
-      if (!userAuthResponse.success) {
-        jsonResponse = ApiResponseJson.dataSessionResponseHandler(
-          success: false,
-          statusCode: 401,
-        );
-        return ApiResponse.fromJson(jsonDecode(jsonResponse));
-      }
-
-      final response = await Supabase.instance.client
-          .from('cw_subtasks')
-          .select()
-          .eq('cw_task_id', taskId);
-
-      jsonResponse = ApiResponseJson.dataSessionResponseHandler(
-        success: true,
-        message: ["Subtasks fetched successfully"],
-        data: {'subtasks': response},
-      );
-    } catch (e) {
-      jsonResponse = ApiResponseJson.dataSessionResponseHandler(
-        success: false,
-        message: ["Unexpected error: $e"],
-      );
-    }
-    return ApiResponse.fromJson(jsonDecode(jsonResponse));
-  }
-
   static Future<ApiResponse> editSubTask({
     required int subTaskId,
     required Map<String, dynamic> fieldsToUpdate,

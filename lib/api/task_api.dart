@@ -42,7 +42,8 @@ class TaskApi {
         'cw_task_difficulty': difficulty,
         'cw_task_description': description,
         'cw_task_name': name,
-        'cw_user_id': userId
+        'cw_user_id': userId,
+        'cw_task_completion_status': false,
       }).select();
 
       if (response.isEmpty) {
@@ -78,8 +79,7 @@ class TaskApi {
     return ApiResponse.fromJson(jsonDecode(jsonResponse));
   }
 
-  static Future<ApiResponse<List<Category>?>>
-      getUserTasksWithCategories() async {
+  static Future<ApiResponse<List<Category>?>> getUserTasksWithCategories() async {
     String jsonResponse = "";
     try {
       final userAuthResponse = await AuthenticationApi.authenticateUser();
@@ -97,25 +97,42 @@ class TaskApi {
           .from('cw_user_categories')
           .select('cw_category_id, cw_category_name, cw_category_color')
           .eq('cw_user_id', userId);
+
       final tasks = await Supabase.instance.client
           .from('cw_user_tasks')
           .select()
           .eq('cw_user_id', userId);
+
+      final taskIds = tasks.map((t) => t['cw_task_id'] as int).toList();
+
+      List subtasks = [];
+      if (taskIds.isNotEmpty) {
+        subtasks = await Supabase.instance.client
+            .from('cw_subtasks')
+            .select()
+            .inFilter('cw_task_id', taskIds);
+      }
+
+      final Map<int, List<dynamic>> subtasksByTask = {};
+      for (final subtask in subtasks) {
+        final tid = subtask['cw_task_id'];
+        if (tid != null) {
+          subtasksByTask.putIfAbsent(tid, () => []).add(subtask);
+        }
+      }
 
       categories.sort((a, b) =>
           (a['cw_category_id'] as int).compareTo(b['cw_category_id'] as int));
       tasks.sort(
           (a, b) => (a['cw_task_id'] as int).compareTo(b['cw_task_id'] as int));
 
-      final Map<int, List<dynamic>> groupedTasks = {
-        0: [],
-      };
-
+      final Map<int, List<dynamic>> groupedTasks = {0: []};
       categories.forEach((category) {
         groupedTasks.putIfAbsent(category['cw_category_id'], () => []);
       });
-
       tasks.forEach((task) {
+        final tid = task['cw_task_id'];
+        task['subtasks'] = subtasksByTask[tid] ?? [];
         if (groupedTasks.containsKey(task['cw_category_id'])) {
           groupedTasks[task['cw_category_id']]?.add(task);
         } else {
